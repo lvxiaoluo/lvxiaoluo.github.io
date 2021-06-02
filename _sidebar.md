@@ -16,8 +16,6 @@
     - [emoji](emoji-list.md)
 
 - 工具  
-  - [工具目录](docs/tools/tool_readme.md)
-  - [不错的个人网站](/docs/Website/README.md)
 
 -----------------------------------
 
