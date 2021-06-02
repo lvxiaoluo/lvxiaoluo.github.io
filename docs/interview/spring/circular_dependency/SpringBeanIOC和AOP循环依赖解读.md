@@ -70,8 +70,7 @@
 ### 1. 问题描述
 
 了解问题的本质再分析问题，往往更利于对问题有更深入的了解和研究。所以我们在分析 Spring 关于循环依赖的源码之前，先要了解下什么是循环依赖。
-
-![图片](https://mmbiz.qpic.cn/sz_mmbiz_png/zTfAIs5rNXhwy0a0U1zXtTIibgwZCjJEx9P2Ho6rRicMQbHENyAa1kk36aWB5FWRH4mogQ0f8cxNIu2dTSeaMA9w/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](media/pictures/interview/spring/circular_dependency/640.png)
 
 - 循环依赖分为三种，自身依赖于自身、互相循环依赖、多组循环依赖。
 - 但无论循环依赖的数量有多少，循环依赖的本质是一样的。就是你的完整创建依赖于我，而我的完整创建也依赖于你，但我们互相没法解耦，最终导致依赖创建失败。
