@@ -165,7 +165,7 @@
 #### 6.1.2 Spring Bean的生命周期？
 #### 6.1.3 spring一个bean装配的过程？
 #### 6.1.4 Spring AOP IOC
-#### 6.1.5 Spring 循环依赖
+#### 6.1.5  [Spring 循环依赖](docs/interview/spring/circular_dependency/SpringBeanIOC和AOP循环依赖解读.md)
 #### 6.1.7 spring如何处理bean在多线程下的并发安全问题？
 #### 6.1.8 beanFactory和FactoryBean区别
 #### 6.1.9 spring事务事务的特性、隔离级别、分布式事务 、怎么和数据库结合
