@@ -70,7 +70,7 @@
 ### 1. 问题描述
 
 了解问题的本质再分析问题，往往更利于对问题有更深入的了解和研究。所以我们在分析 Spring 关于循环依赖的源码之前，先要了解下什么是循环依赖。
-![图片](docs/images/interview/spring/circular_dependency/640.png)
+![图片](../../../images/interview/spring/circular_dependency/640.png)
 
 - 循环依赖分为三种，自身依赖于自身、互相循环依赖、多组循环依赖。
 - 但无论循环依赖的数量有多少，循环依赖的本质是一样的。就是你的完整创建依赖于我，而我的完整创建也依赖于你，但我们互相没法解耦，最终导致依赖创建失败。
@@ -158,24 +158,23 @@ class B {
 - `getBean`，是整个解决循环依赖的核心内容，A 创建后填充属性时依赖 B，那么就去创建 B，在创建 B 开始填充时发现依赖于 A，但此时 A 这个半成品对象已经存放在缓存到`singletonObjects` 中了，所以 B 可以正常创建，在通过递归把 A 也创建完整了。
 
   
-
-- ![图片](https://mmbiz.qpic.cn/sz_mmbiz_png/zTfAIs5rNXhwy0a0U1zXtTIibgwZCjJExtUnUnVhvFjKGLQb7zvaS3EL3HOhZGVQgyzKDHx0bFQvTiajAibSONk5Q/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
-
+![图片](../../../images/interview/spring/circular_dependency/641.png)
 ## **四、源码分析**
 
 ### 1. 说说细节
 
 通过上面的例子我们大概了解到，A和B互相依赖时，A创建完后填充属性B，继续创建B，再填充属性A时就可以从缓存中获取了，如下：
 
-![图片](https://mmbiz.qpic.cn/sz_mmbiz_png/zTfAIs5rNXhwy0a0U1zXtTIibgwZCjJExfG1tpuDjAOS3j37KSViaeA2yhWlyzP5LVGeVNCKECPxFkJXasgFtgQQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](../../../images/interview/spring/circular_dependency/642.png)
 
 那这个解决循环依赖的事放到 Spring 中是什么样呢？展开细节！
 
-![图片](https://mmbiz.qpic.cn/sz_mmbiz_png/zTfAIs5rNXhwy0a0U1zXtTIibgwZCjJExBAFoIFFudCjibJMWibDW2RtoHFQjmLzExMWQI3mD8RiaOVbOyp8zFrdqA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](../../../images/interview/spring/circular_dependency/643.png)
 
 **虽然**，解决循环依赖的核心原理一样，但要放到支撑起整个 Spring 中 IOC、AOP 特性时，就会变得复杂一些，整个处理 Spring 循环依赖的过程如下；
 
-![图片](https://mmbiz.qpic.cn/sz_mmbiz_png/zTfAIs5rNXhwy0a0U1zXtTIibgwZCjJEx5XHkEB1ZjsTOOl2SqIH0cMxwTic7D0bib6oFmFRDNsQdqOeicWZvq4kXw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](../../../images/interview/spring/circular_dependency/644.png)
+
 
 - 以上就是关于 Spring 中对于一个有循环依赖的对象获取过程，也就是你想要的`说说细节`
 - 乍一看是挺多流程，但是这些也基本是你在调试代码时候必须经过的代码片段，拿到这份执行流程，再调试就非常方便了。
@@ -326,7 +325,7 @@ protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 
 #### 1. 一级缓存能解决吗？
 
-![图片](https://mmbiz.qpic.cn/sz_mmbiz_png/zTfAIs5rNXhwy0a0U1zXtTIibgwZCjJExTduGKhJFUF4Vj8nQ7htWfjuibxyEgsibMvkAyBRqT1VkkRD1wDPnHFIA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](../../../images/interview/spring/circular_dependency/645.png)
 
 - 其实只有一级缓存并不是不能解决循环依赖，就像我们自己做的例子一样。
 - 但是在 Spring 中如果像我们例子里那么处理，就会变得非常麻烦，而且也可能会出现 NPE 问题。
@@ -334,7 +333,7 @@ protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 
 #### 2. 二级缓存能解决吗？
 
-![图片](https://mmbiz.qpic.cn/sz_mmbiz_png/zTfAIs5rNXhwy0a0U1zXtTIibgwZCjJExaGXzaRoIeFUibU2mNZINozqoRK18mww9LyaZIgjsiakdYn5Kf2wBw07A/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](../../../images/interview/spring/circular_dependency/646.png)
 
 - 有了二级缓存其实这个事处理起来就容易了，一个缓存用于存放成品对象，另外一个缓存用于存放半成品对象。
 - A 在创建半成品对象后存放到缓存中，接下来补充 A 对象中依赖 B 的属性。
@@ -342,7 +341,7 @@ protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 
 #### 3. 三级缓存解决什么？
 
-![图片](https://mmbiz.qpic.cn/sz_mmbiz_png/zTfAIs5rNXhwy0a0U1zXtTIibgwZCjJExa25az3bIGmMIwuicDl9eSB8ibRxOs4gnOX5wbH8qnxuBn1te2W6bM5oQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](../../../images/interview/spring/circular_dependency/647.png)
 
 - 有了二级缓存都能解决 Spring 依赖了，怎么要有三级缓存呢。其实我们在前面分析源码时也提到过，三级缓存主要是解决 Spring AOP 的特性。AOP 本身就是对方法的增强，是 `ObjectFactory` 类型的 lambda 表达式，而 Spring 的原则又不希望将此类类型的 Bean 前置创建，所以要存放到三级缓存中处理。
 - 其实整体处理过程类似，唯独是 B 在填充属性 A 时，先查询成品缓存、再查半成品缓存，最后在看看有没有单例工程类在三级缓存中。最终获取到以后调用 getObject 方法返回代理引用或者原始引用。
