@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>吕小洛的博客</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="吕小洛的博客">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="/static/css/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.css">
+  <link rel="icon" href="favicon.ico">
+
+</head>
+
+<body>
+  <div id="app">
+  </div>
+
+  <script src="/static/js/docsify.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+  <!-- A plugin for docsify to generate a edit on github button on every pages. 
+    click the button to open corresponding md editing page on github. -->
+  <script src="//unpkg.com/docsify-edit-on-github/index.js"></script>
+  <!-- emoji -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
+  <script type="text/javascript" src="https://git.hust.cc/GitHub-Repo-Widget.js/GithubRepoWidget.js"></script>
+
+
+  <!--Java代码高亮-->
+  <script src="//unpkg.com/prismjs/components/prism-java.js"></script>
+
+  <!--谷歌统计
+  <script src="//unpkg.com/docsify" data-ga="UA-138586553-1"></script>
+  <script src="//unpkg.com/docsify/lib/plugins/ga.js"></script>
+  -->
+  <!-- 复制到剪贴板 -->
+  <script src="//unpkg.com/docsify-copy-code"></script>
+  <!-- 图片缩放 -->
+  <script src="/static/js/zoom-image.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+
+  <!-- 字数统计 -->
+  <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
+
+  <!-- 外链脚本插件 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/external-script.min.js"></script>
+
+  <!-- 链接下一篇文章插件 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+
+
+  <script>
+    var titleOld = "吕小洛的博客";
+    var gitalkConfig = {
+      clientID: '2eea8db1d15a57751622',
+      clientSecret: '91e8bdf9843aaa0cb793bcb83795fa199549795f',
+      repo: 'Docsify-Template',
+      owner: 'Sogrey',
+      admin: ['Sogrey'],
+      distractionFreeMode: false
+    };
+
+    window.$docsify = {
+      el: '#app',
+      // logo: 'https://sogrey.top/img/logo/sogrey-undecided.png',
+      logo:'favicon.ico',
+      name: '吕小洛',
+      repo: 'https://github.com/lvxiaoluo/lvxiaoluo.github.io',
+      loadSidebar:true,// '_sidebar.md', //左侧目录
+      loadNavbar:true,// '_navbar.md', //菜单栏
+      coverpage: { //封面
+        '/': '_coverpage.md'
+
+      },
+      subMaxLevel: 1,
+      alias: {
+        // '/_sidebar.md': '/sidebar.md'
+      },
+      auto2top: true,
+      homepage: 'README.md',
+
+      search: 'auto', // default,
+
+      // search: {
+      //   maxAge: 86400000, // 过期时间，单位毫秒，默认一天
+      //   paths: [], // or 'auto'
+      //   placeholder: 'Type to search',
+      //   noData: 'No Results!',        
+      //   depth: 5// 搜索标题的最大程级, 1 - 6
+      // },
+      // docsify-copy-code
+      copyCode: {
+        // buttonText: 'Copy to clipboard',
+        // errorText: 'Error',
+        // successText: 'Copied'
+
+        buttonText: {
+          '/zh-cn/': '点击复制',
+          '/ru/': 'Скопировать в буфер обмена',
+          '/de-de/': 'Klicken Sie zum Kopieren',
+          '/es/': 'Haga clic para copiar',
+          '/': 'Copy to clipboard'
+        },
+        errorText: {
+          '/zh-cn/': '错误',
+          '/ru/': 'ошибка',
+          '/': 'Error'
+        },
+        successText: {
+          '/zh-cn/': '复制',
+          '/ru/': 'Скопировано',
+          '/de-de/': 'Kopiert',
+          '/es/': 'Copiado',
+          '/': 'Copied'
+        }
+      },
+      pagination: {
+          previousText: '上一篇',
+          nextText: '下一篇',
+          crossChapter: true,
+          crossChapterText: true,
+      },
+      plugins: [
+
+        // 编辑
+
+        // EditOnGithubPlugin.create(
+        //   'https://github.com/Sogrey/Docsify-Template/tree/master/docs/',
+        //   null,
+        //   function (file) {
+        //     if (file.indexOf('/en/') === -1) {
+        //       return '编辑'
+        //     } else {
+        //       return 'edit on github'
+        //     }
+        //   }),
+
+        // gitalk
+
+        function (hook, vm) {          
+          hook.doneEach(function () {
+            window.GithubRepoWidget.init();
+            var label, domObj, main, divEle, gitalk;
+            label = vm.route.path.split("/").pop();
+            domObj = Docsify.dom;
+            main = domObj.getNode("#main");
+
+            Array.apply(
+              null,
+              document.querySelectorAll("div.gitalk-container")
+            ).forEach(function (ele) {
+              ele.remove();
+            });
+
+            var mainContent = document.getElementById("main");
+            var H1s = main.querySelectorAll('h1');
+            //!! 注意：这里是以页面内容h1标签文本来确定评论，所以标题一旦确定不要轻易修改
+            if (H1s.length > 0) {
+              var h1 = H1s[0];
+              var title = h1.id;
+              // console.log(title);
+              if (titleOld != title && title != 'docsify-template') {
+                titleOld = title;
+
+                divEle = domObj.create("div");
+                divEle.id = "gitalk-container-" + title;
+                divEle.className = "gitalk-container";
+                divEle.style = "width: " + main.clientWidth + "px; margin: 0 auto 20px;";
+                domObj.appendTo(domObj.find(".content"), divEle);
+                gitalk = new Gitalk(
+                  Object.assign(gitalkConfig, {
+                    id: !title ? "home" : title
+                  })
+                );
+                gitalk.render("gitalk-container-" + title);
+              }
+            }
+
+          });
+        }
+      ],
+    }
+  </script>
+
+  <!-- 以下js文件要放在`window.$docsify`之后引入，放在之前引入无效，也不知道为毛 -->
+  <!--<script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>-->
+  <!--全文搜索,直接用官方提供的无法生效-->
+  <script src="https://cdn.bootcss.com/docsify/4.5.9/plugins/search.min.js"></script>
+  <script src="https://unpkg.com/docsify-copy-code@2"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "吕小洛",
+  "version": "1.0.0",
+  "description": "吕小洛的博客",
+  "dependencies": {
+    "docsify-cli": "^4.4.0"
+  },
+  "devDependencies": {
+    "docsify-pdf-converter": "^2.0.7"
+  },
+  "scripts": {
+    "start": "docsify serve docs --port 3033",
+    "deploy": "bash deploy.sh",
+    "convert": "node_modules/.bin/docsify-pdf-converter",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lvxiaoluo/lvxiaoluo.github.io.git"
+  },
+  "keywords": [
+    "Docsify"
+  ],
+  "author": "Sogrey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lvxiaoluo/lvxiaoluo.github.io/issues"
+  },
+  "homepage": "https://github.com/lvxiaoluo/lvxiaoluo.github.io#readme"
+}
