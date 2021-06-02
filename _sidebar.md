@@ -5,7 +5,7 @@
 
 
 - Interview
-  - [JAVA基础](/docs/interview/base/README.md)
+  - [汇总](/docs/interview/README.md)
   
 
 - 技术杂谈

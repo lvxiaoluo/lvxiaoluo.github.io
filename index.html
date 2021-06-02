@@ -147,36 +147,36 @@
             domObj = Docsify.dom;
             main = domObj.getNode("#main");
 
-            Array.apply(
-              null,
-              document.querySelectorAll("div.gitalk-container")
-            ).forEach(function (ele) {
-              ele.remove();
-            });
-
-            var mainContent = document.getElementById("main");
-            var H1s = main.querySelectorAll('h1');
-            //!! 注意：这里是以页面内容h1标签文本来确定评论，所以标题一旦确定不要轻易修改
-            if (H1s.length > 0) {
-              var h1 = H1s[0];
-              var title = h1.id;
-              // console.log(title);
-              if (titleOld != title && title != 'docsify-template') {
-                titleOld = title;
-
-                divEle = domObj.create("div");
-                divEle.id = "gitalk-container-" + title;
-                divEle.className = "gitalk-container";
-                divEle.style = "width: " + main.clientWidth + "px; margin: 0 auto 20px;";
-                domObj.appendTo(domObj.find(".content"), divEle);
-                gitalk = new Gitalk(
-                  Object.assign(gitalkConfig, {
-                    id: !title ? "home" : title
-                  })
-                );
-                gitalk.render("gitalk-container-" + title);
-              }
-            }
+            // Array.apply(
+            //   null,
+            //   document.querySelectorAll("div.gitalk-container")
+            // ).forEach(function (ele) {
+            //   ele.remove();
+            // });
+            //
+            // var mainContent = document.getElementById("main");
+            // var H1s = main.querySelectorAll('h1');
+            // //!! 注意：这里是以页面内容h1标签文本来确定评论，所以标题一旦确定不要轻易修改
+            // if (H1s.length > 0) {
+            //   var h1 = H1s[0];
+            //   var title = h1.id;
+            //   // console.log(title);
+            //   if (titleOld != title && title != 'docsify-template') {
+            //     titleOld = title;
+            //
+            //     divEle = domObj.create("div");
+            //     divEle.id = "gitalk-container-" + title;
+            //     divEle.className = "gitalk-container";
+            //     divEle.style = "width: " + main.clientWidth + "px; margin: 0 auto 20px;";
+            //     domObj.appendTo(domObj.find(".content"), divEle);
+            //     gitalk = new Gitalk(
+            //       Object.assign(gitalkConfig, {
+            //         id: !title ? "home" : title
+            //       })
+            //     );
+            //     gitalk.render("gitalk-container-" + title);
+            //   }
+            // }
 
           });
         }
