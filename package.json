@@ -1,7 +1,7 @@
 {
-  "name": "吕小洛",
+  "name": "技术半仙",
   "version": "1.0.0",
-  "description": "吕小洛的博客",
+  "description": "技术半仙的博客",
   "dependencies": {
     "docsify-cli": "^4.4.0"
   },
