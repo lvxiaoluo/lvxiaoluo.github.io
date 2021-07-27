@@ -45,9 +45,9 @@ commit;
 
 #### redo log 有什么作用？
 
-mysql 为了提升性能不会把每次的修改都实时同步到磁盘，而是会先存到Boffer Pool(缓冲池)里头，把这个当作缓存来用。然后使用后台线程去做缓冲池和磁盘之间的同步。
+mysql 为了提升性能不会把每次的修改都实时同步到磁盘，而是会先存到Buffer Pool(缓冲池)里头，把这个当作缓存来用。然后使用后台线程去做缓冲池和磁盘之间的同步。
 
-那么问题来了，如果还没来的同步的时候宕机或断电了怎么办？还没来得及执行上面图中红色的操作。这样会导致丢部分已提交事务的修改信息！
+那么问题来了，如果还没来得及同步的时候宕机或断电了怎么办？还没来得及执行上面图中红色的操作。这样会导致丢部分已提交事务的修改信息！
 
 所以引入了redo log来记录已成功提交事务的修改信息，并且会把redo log持久化到磁盘，系统重启之后在读取redo log恢复最新数据。
 
@@ -96,8 +96,6 @@ undo log 记录事务修改之前版本的数据信息，因此假如由于系�
 写锁会排斥其他所有获取锁的请求，一直阻塞，直到写入完成释放锁。
 
 ![图片](https://mmbiz.qpic.cn/mmbiz_png/8KKrHK5ic6XAlSTLzPibMnIJmVZw8QbzduOrz7ERQZOPDJmAq0m2WpIE7bo9rtXAvZzicaF2CgErFiayEGUsDg8olw/640)
-
-
 
 总结：通过读写锁，可以做到读读可以并行，但是不能做到写读，写写并行 事务的隔离性就是根据读写锁来实现的！！！这个后面再说。
 
@@ -263,7 +261,7 @@ InnoDB在 READ COMMITTED，使用排它锁,读取数据不加锁而是使用了M
 
 **![图片](https://mmbiz.qpic.cn/mmbiz_png/8KKrHK5ic6XAlSTLzPibMnIJmVZw8Qbzduw6n4Z14VsvwO7TxIj9QIRicEFMpP6Lu6rZIC5zmMukTibmYwwWkrRpag/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)**
 
-为什么能可重复度？只要没释放读锁，在次读的时候还是可以读到第一次读的数据。
+为什么能可重复读？只要没释放读锁，在次读的时候还是可以读到第一次读的数据。
 
 - 优点：实现起来简单
 - 缺点：无法做到读写并行
@@ -272,7 +270,7 @@ InnoDB在 READ COMMITTED，使用排它锁,读取数据不加锁而是使用了M
 
 **![图片](https://mmbiz.qpic.cn/mmbiz_png/8KKrHK5ic6XAlSTLzPibMnIJmVZw8Qbzdu2EdfIjibqcXc8fcGdLibrDcedrl4SvLWRTjxUIgZeqDtNSOwZkQ16g9w/640)**
 
-为什么能可重复度？因为多次读取只生成一个版本，读到的自然是相同数据。
+为什么能可重复读？因为多次读取只生成一个版本，读到的自然是相同数据。
 
 - 优点：读写并行
 - 缺点：实现的复杂度高
