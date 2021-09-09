@@ -16,3 +16,14 @@ public class Class1Test {
         field.set(null, newValue);
     }
 }
+
+
+异常处理
+
+@Rule
+public ExpectedException expectedException = ExpectedException.none();
+
+
+
+expectedException.expect(ClientException.class);
+expectedException.expectMessage("skuId列表不可为空");
