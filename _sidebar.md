@@ -6,6 +6,9 @@
 
 - Interview
   - [汇总](/docs/interview/README.md)
+    - [JVM](/docs/interview/jvm/README.md)
+    - [collection](/docs/interview/collection/README.md)
+    - [LOCK](/docs/interview/base/README.md)
     - [Spring](/docs/interview/spring/README.md)
     - [MQ](/docs/interview/mq/README.md)
       - [RocketMQ](/docs/interview/mq/rocketmq/README.md)
