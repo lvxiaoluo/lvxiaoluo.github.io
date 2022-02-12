@@ -5,7 +5,8 @@ Java8新增了`CompletableFuture` 提供对异步计算的支持，可以通过�
 > 试想下这个场景：要执行一个任务逻辑（交给另一个线程处理），并针对任务结果转换，最后执行打印操作，那么该如完成呢？一种是使用Future.get获取任务结果并执行转换逻辑，最后执行打印操作，有没有像stream那样的处理方式呢？借助CompletableFuture的话，实现代码如下：
 
 ```java
-CompletableFuture.supplyAsync(() -> "000")
+CompletableFuture
+        .supplyAsync(() -> "000")
         .thenApply(s -> s.length()) // Function
         .whenComplete((integer, throwable) -> System.out.println(integer));
 ```
@@ -20,11 +21,13 @@ CompletableFuture.supplyAsync(() -> "000")
 对于上述的两种情况测试代码如下：
 
 ```java
-CompletableFuture.completedFuture("000")
+CompletableFuture
+        .completedFuture("000")
         .thenApply(r -> r)
         .whenComplete((r, e) -> System.out.println(format(r)));
 
-CompletableFuture.supplyAsync(() -> {
+CompletableFuture
+        .supplyAsync(() -> {
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(10));
             return "111";
         })
@@ -45,7 +48,8 @@ private static String format(String msg) {
 在上述分析完毕后，我们来实际看下CompletableFuture源码，来一探究竟其执行流程，为了方便查看源码debug，使用如下示例代码：
 
 ```java
-CompletableFuture.supplyAsync(() -> {
+CompletableFuture
+  .supplyAsync(() -> {
     // random n millisecond
     int ms = new Random().nextInt(100);
     LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(ms));
