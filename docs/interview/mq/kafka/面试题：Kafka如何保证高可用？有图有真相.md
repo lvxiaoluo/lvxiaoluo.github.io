@@ -30,7 +30,7 @@
     ![图片](https://mmbiz.qpic.cn/mmbiz_png/hC3oNAJqSRxPRzrRVRibibiagnX6xp0sTLBhs2y55QS4ryOULLTJARLFxibpiac2MkibYwlzb2CQ0kpSCVhJ7BLXEBgw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
     # ISR机制
-    **「ISR 副本集合」**
+    **「ISR 副本集合」*ISR*(即 in-sync Replica)**
 
     ISR 中的副本都是与 Leader 同步的副本，相反，不在 ISR 中的追随者副本就被认为是与 Leader 不同步的
 
