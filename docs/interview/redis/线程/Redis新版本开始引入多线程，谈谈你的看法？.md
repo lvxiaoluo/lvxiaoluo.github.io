@@ -1,27 +1,4 @@
 # 面试官：Redis新版本开始引入多线程，谈谈你的看法？
-
-景同学 [石杉的架构笔记](javascript:void(0);) *2021-12-22 07:50*
-
-点击上方蓝色“石杉的架构笔记”，选择“设为星标”
-
-![图片](https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLaW5XycOGDYFcpTv0H3PVbticUqZp6zb57v4GEx3qwp9vjDD2D6NtDB1ibQcdMiaBiaKME64tbaxPTmTA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
-
-![图片](https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLaW5XycOGDYFcpTv0H3PVbtdMDFfAI3hiaylH3JsdFiaZ4UibibFb6a4mDY8t1oD1r91mLHNYIPr1gToA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
-
-![图片](https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLaW5XycOGDYFcpTv0H3PVbt6y0ldN6Qj8y6Wb0mAKQsic2481R59ib2wVVb0Cuz62dicZ8icHI88mMzpw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
-
-
-
-![图片](https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLZibTYKUOYdFVrgjDrBzkDHwymep3YEvG7WjqePNGcESLfr53gvTZoTgkLcjRIbl9a0exwwLS3ghMg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
-
-代码托管仓库：https://gitee.com/suzhou-mopdila-information/ruyuan-dfs
-
-![图片](https://mmbiz.qpic.cn/mmbiz_png/c6gqmhWiafyraCOeb13lWRHKRDxOnqibg5ZxwV0hs3wIJa5qwByVh9J5FfvPdTKQJASYsBiahgiaZcKJribYsKOib1rg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
-
-长按扫描上方免费参加
-
-
-
 ![图片](https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLanG2nzjVZov1VibmPXR7lDibFjRdTvH1iaDz9ic4H3xRZCz7BM563rFFfvRukzX7uhOqXc8yDhEZqicFQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
 来源：https://juejin.cn/post/6928407842009546766
@@ -272,15 +249,3 @@ Redis 4.0引入`Lazy Free`线程，解决了诸如大键删除导致服务器阻
 > What instead I really want a lot is slow operations threading, and with the Redis modules system we already are in the right direction. However in the future (not sure if in Redis 6 or 7) we’ll get key-level locking in the module system so that threads can completely acquire control of a key to process slow operations. Now modules can implement commands and can create a reply for the client in a completely separated way, but still to access the shared data set a global lock is needed: this will go away.
 
 Redis作者更倾向于采用集群方式来解决`I/O threading`，尤其是在6.0版本发布的原生Redis Cluster Proxy背景下，使得集群更加易用。此外，作者更倾向于`slow operations threading`（比如4.0版本发布的`Lazy Free`）来解决多线程问题。后续版本，是否会将`IO Thread`实现的更加完善，采用Module实现对慢操作的优化，着实值得期待。
-
-
-
-------
-
-------
-
-![图片](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
-
-![图片](https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLZibTYKUOYdFVrgjDrBzkDHwma0Mqq7TXkIX3V6XRlPqL8AdGwoGlrbmDDEfdiaFFFc2SticB9PguNUQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
-
-![图片](https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLZibTYKUOYdFVrgjDrBzkDHwibIspPeXZ0jhHG5YUb9oyMFictgRSbVAGd2X4I8a0CzSVXNniaaQUibPOg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)

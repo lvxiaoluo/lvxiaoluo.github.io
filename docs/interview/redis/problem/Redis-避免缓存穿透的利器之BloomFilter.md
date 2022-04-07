@@ -1,6 +1,6 @@
 # Redis-避免缓存穿透的利器之BloomFilter
 
-> # 前言 你在开发或者面试过程中，有没有遇到过 海量数据需要查重，缓存穿透怎么避免等等这样的问题呢？下面这个东西超屌，好好了解下，面试过关斩将，凸显你的不一样。
+> # 前言 你在开发或者面试过程中，有没有遇到过 海量数据需要查重，缓存穿透怎么避免等等这样的问题呢？好好了解下，面试过关斩将，凸显你的不一样。
 
 # Bloom Filter 概念
 
@@ -12,11 +12,11 @@
 
 Bloom Filter跟单哈希函数Bit-Map不同之处在于：Bloom Filter使用了k个哈希函数，每个字符串跟k个bit对应。从而降低了冲突的概率。
 
-![img](https://user-gold-cdn.xitu.io/2019/10/28/16e112fbd031fe71?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![img](../../../images/interview/redis/bloomfilter1.png)
 
 ### 缓存穿透
 
-![img](https://user-gold-cdn.xitu.io/2019/10/30/16e1b6d07e758c4a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![img](../../../images/interview/redis/bloomfilter2.png)
 
 
 
@@ -59,7 +59,7 @@ bloom filter之所以能做到在时间和空间上的效率比较高，是因�
 
   根据预估数据量n以及误判率fpp，bit数组大小的m的计算方式：
 
-![img](https://user-gold-cdn.xitu.io/2019/10/28/16e112fbd079c208?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![img](../../../images/interview/redis/bloomfilter3.png)
 
 
 
@@ -67,7 +67,7 @@ bloom filter之所以能做到在时间和空间上的效率比较高，是因�
 
  由预估数据量n以及bit数组长度m，可以得到一个hash函数的个数k：
 
-![img](https://user-gold-cdn.xitu.io/2019/10/28/16e112fbd09afadb?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![img](../../../images/interview/redis/bloomfilter4.png)
 
 
 
@@ -131,13 +131,7 @@ public class TestBloomFilter {
 复制代码
 ```
 
-运行结果：
-
-
-
-![img](https://user-gold-cdn.xitu.io/2019/10/28/16e112fbd21d26d6?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-
+运行结果：**误伤的数量：323**
 
 运行结果表示，遍历这一百万个在过滤器中的数时，都被识别出来了。一万个不在过滤器中的数，误伤了320个，错误率是0.03左右。
 
@@ -178,13 +172,13 @@ strategy 哈希算法(我也不懂啥意思)Bloom Filter的应用
 
 
 
-![img](https://user-gold-cdn.xitu.io/2019/10/28/16e112fbd6486cb5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![img](../../../images/interview/redis/bloomfilter5.png)
 
 
 
 
 
-![img](https://user-gold-cdn.xitu.io/2019/10/28/16e112fbd78368a7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![img](../../../images/interview/redis/bloomfilter6.png)
 
 
 
@@ -199,11 +193,8 @@ private static BloomFilter<Integer> bf = BloomFilter.create(Funnels.integerFunne
 复制代码
 ```
 
-再运行看看：
+再运行看看：**误伤的数量：4**
 
-
-
-![img](https://user-gold-cdn.xitu.io/2019/10/28/16e112fc0062916c?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 
 
@@ -211,8 +202,7 @@ private static BloomFilter<Integer> bf = BloomFilter.create(Funnels.integerFunne
 
 
 
-![img](https://user-gold-cdn.xitu.io/2019/10/28/16e112fc02001fd5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
+![img](../../../images/interview/redis/bloomfilter7.png)
 
 
 当错误率设为0.0003时，所需要的位数为16883499，1600万位，需要12个函数

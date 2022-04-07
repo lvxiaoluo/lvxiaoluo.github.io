@@ -83,7 +83,7 @@ Redis并没有在网络请求模块和数据操作模块中使用多线程模型
 
 这里先讲讲**Linux多路复用技术，就是多个进程的IO可以注册到同一个管道上，这个管道会统一和内核进行交互。当管道中的某一个请求需要的数据准备好之后，进程再把对应的数据拷贝到用户空间中。**
 
-![img](http://www.hollischuang.com/wp-content/uploads/2021/03/16157036192280.jpg)￼
+![img](http://www.hollischuang.com/wp-content/uploads/2021/03/16157036192280.jpg)
 
 多看一遍上面这张图和上面那句话，后面可能还会用得到。
 
@@ -93,11 +93,11 @@ IO多路复用在Linux下包括了三种，select、poll、epoll，抽象来看�
 
 其实，Redis的IO多路复用程序的所有功能都是通过包装操作系统的IO多路复用函数库来实现的。每个IO多路复用函数库在Redis源码中都有对应的一个单独的文件。
 
-![img](http://www.hollischuang.com/wp-content/uploads/2021/03/16157004365080.jpg)￼
+![img](http://www.hollischuang.com/wp-content/uploads/2021/03/16157004365080.jpg)
 
 在Redis 中，每当一个套接字准备好执行连接应答、写入、读取、关闭等操作时，就会产生一个文件事件。因为一个服务器通常会连接多个套接字，所以多个文件事件有可能会并发地出现。
 
-![img](http://www.hollischuang.com/wp-content/uploads/2021/03/16157003905528.jpg)￼
+![img](http://www.hollischuang.com/wp-content/uploads/2021/03/16157003905528.jpg)
 
 一旦有请求到达，就会交给 Redis 线程处理，这就实现了一个 Redis 线程处理多个 IO 流的效果。
 
@@ -134,7 +134,7 @@ IO多路复用在Linux下包括了三种，select、poll、epoll，抽象来看�
 
 下面是多路复用IO中select函数的处理过程：
 
-![img](http://www.hollischuang.com/wp-content/uploads/2021/03/16157047007332.jpg)￼
+![img](http://www.hollischuang.com/wp-content/uploads/2021/03/16157047007332.jpg)
 
 从上图我们可以看到，**在多路复用的IO模型中，在处理网络请求时，调用 select （其他函数同理）的过程是阻塞的，也就是说这个过程会阻塞线程，如果并发量很高，此处可能会成为瓶颈。**
 
