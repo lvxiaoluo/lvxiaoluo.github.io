@@ -731,7 +731,7 @@ Zookeeper 的优点：
 这里我把这些内容总结成了思维导图，方便你理解。
 
 ![图片](https://mmbiz.qpic.cn/mmbiz_png/gB9Yvac5K3N9hGL63cpMX4cTuPjx5Y0lxKUqEhbGcaicVzcRcO63RDEWG5dGa3B9QP3Nf4524HooC2HT4RBSbqg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
-
+![image](../../images/interview/redis/redis_lock.png)
 
 
 # 后记
@@ -751,3 +751,5 @@ Zookeeper 的优点：
 “**前人已经为我们创造出了许多伟大的成果：站在巨人的肩膀上，我们可以才得以构建更好的软件。无论如何，通过争论和检查它们是否经得起别人的详细审查，这是学习过程的一部分。但目标应该是获取知识，而不是为了说服别人，让别人相信你是对的。有时候，那只是意味着停下来，好好地想一想。**”
 
 共勉。
+
+[原文地址](https://mp.weixin.qq.com/s/p0-tIRmpjdMqkG9hJYfrdw)
