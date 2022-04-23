@@ -455,7 +455,9 @@ MySQL Innodb中跟数据持久性、一致性有关的日志，有以下几种�
 
 **案例**：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/jW4jBcwJbUZCAbtMxL8RKSSrOxW6Yl7uDdgqGPxHltWY1mr5fBCaoiaYq3bSjKAG1QWNW9CL0fQ5wkXe8ttb2hA/640)验证MVCC
+![图片](https://mmbiz.qpic.cn/mmbiz_png/jW4jBcwJbUZCAbtMxL8RKSSrOxW6Yl7uDdgqGPxHltWY1mr5fBCaoiaYq3bSjKAG1QWNW9CL0fQ5wkXe8ttb2hA/640)
+
+验证MVCC
 
 问题：**在RR隔离级别下，age初始为18，Q1和Q2的值是多少**？
 
@@ -463,7 +465,8 @@ MySQL Innodb中跟数据持久性、一致性有关的日志，有以下几种�
 
 解释：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/jW4jBcwJbUZCAbtMxL8RKSSrOxW6Yl7uOQMmAN8zao6JcBAjG99LVPpp5yQTNKeIKIxXmb3CYujdzOHyia8H73w/640)示例
+![图片](https://mmbiz.qpic.cn/mmbiz_png/jW4jBcwJbUZCAbtMxL8RKSSrOxW6Yl7uOQMmAN8zao6JcBAjG99LVPpp5yQTNKeIKIxXmb3CYujdzOHyia8H73w/640)
+示例
 
 **事务A触发的是快照读（历史版本）**；**事务B触发的是当前读（最新版本）**。所以**MySQL在一定程度上解决了幻读问题（前提：触发的是快照读）**。
 
@@ -475,7 +478,8 @@ MySQL Innodb中跟数据持久性、一致性有关的日志，有以下几种�
 
 ### 2.1 锁概述
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/jW4jBcwJbUZCAbtMxL8RKSSrOxW6Yl7uLgxmzBSIKtfDCSicgzSJ7wfspPKgre0FsahXWHNcbkibF2LCnW1qVS6Q/640)表概述
+![图片](https://mmbiz.qpic.cn/mmbiz_png/jW4jBcwJbUZCAbtMxL8RKSSrOxW6Yl7uLgxmzBSIKtfDCSicgzSJ7wfspPKgre0FsahXWHNcbkibF2LCnW1qVS6Q/640)
+表概述
 
 ### 2.2 锁分类
 

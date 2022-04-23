@@ -34,7 +34,9 @@ Cache-Aside Pattern，即**旁路缓存模式**，它的提出是为了尽可能
 
 **Cache-Aside Pattern**的读请求流程如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRAZ68JX9LyG7LT6bJfOHgWhbeXypQd0RE3LcicVxian4UtLW1enj6icCkw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)Cache-Aside读请求
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRAZ68JX9LyG7LT6bJfOHgWhbeXypQd0RE3LcicVxian4UtLW1enj6icCkw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+Cache-Aside
+读请求
 
 1. 读的时候，先读缓存，缓存命中的话，直接返回数据
 2. 缓存没有命中的话，就去读数据库，从数据库取出数据，放入缓存后，同时返回响应。
@@ -43,7 +45,9 @@ Cache-Aside Pattern，即**旁路缓存模式**，它的提出是为了尽可能
 
 **Cache-Aside Pattern**的写请求流程如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCR6HyLYMqNc3o0JAQaSaLqhThRAtNml8mNqBpTDRNAicAXOkakeE00bkA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)Cache-Aside写请求
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCR6HyLYMqNc3o0JAQaSaLqhThRAtNml8mNqBpTDRNAicAXOkakeE00bkA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+Cache-Aside
+写请求
 
 更新的时候，先**更新数据库，然后再删除缓存**。
 
@@ -55,14 +59,18 @@ Cache-Aside Pattern，即**旁路缓存模式**，它的提出是为了尽可能
 
 **Read-Through**的简要流程如下
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRNg934JicTpmXwHn9orTn4dSYzxF4nA5bAvS78OSylNrTBSr9A7icL74Q/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)Read-Through简要流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRNg934JicTpmXwHn9orTn4dSYzxF4nA5bAvS78OSylNrTBSr9A7icL74Q/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+Read-Through
+简要流程
 
 1. 从缓存读取数据，读到直接返回
 2. 如果读取不到的话，从数据库加载，写入缓存后，再返回响应。
 
 这个简要流程是不是跟**Cache-Aside**很像呢？其实**Read-Through**就是多了一层**Cache-Provider**而已，流程如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRcUc7P99fMX2P9zHice4nB6S4crMdIOKt7euG6tPFbdRdshVPT7wSDWA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)Read-Through流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRcUc7P99fMX2P9zHice4nB6S4crMdIOKt7euG6tPFbdRdshVPT7wSDWA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+
+Read-Through流程
 
 Read-Through实际只是在**Cache-Aside**之上进行了一层封装，它会让程序代码变得更简洁，同时也减少数据源上的负载。
 
@@ -74,7 +82,8 @@ Read-Through实际只是在**Cache-Aside**之上进行了一层封装，它会�
 
 **Write-behind** 跟Read-Through/Write-Through有相似的地方，都是由**Cache Provider**来负责缓存和数据库的读写。它们又有个很大的不同：**Read/Write-Through**是同步更新缓存和数据的，**Write-Behind**则是只更新缓存，不直接更新数据库，通过**批量异步**的方式来更新数据库。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRfbHibY85ws4ejO2iaCEGuJicXYKIqt4gpdxVsqdxFksutMl0TwGKicdrrw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)Write behind流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRfbHibY85ws4ejO2iaCEGuJicXYKIqt4gpdxVsqdxFksutMl0TwGKicdrrw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+Write behind 流程
 
 这种方式下，缓存和数据库的一致性不强，**对一致性要求高的系统要谨慎使用**。但是它适合频繁写的场景，MySQL的**InnoDB Buffer Pool机制**就使用到这种模式。
 
@@ -82,7 +91,8 @@ Read-Through实际只是在**Cache-Aside**之上进行了一层封装，它会�
 
 日常开发中，我们一般使用的就是**Cache-Aside**模式。有些小伙伴可能会问， **Cache-Aside**在写入请求的时候，为什么是**删除缓存而不是更新缓存**呢？
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRjKRUkFM9hicTx41HbEF3ag8E1w3sTSAPArSrWukm2mgHBHqiczEK29Pg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)Cache-Aside写入流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRjKRUkFM9hicTx41HbEF3ag8E1w3sTSAPArSrWukm2mgHBHqiczEK29Pg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+Cache-Aside写入流程
 
 我们在操作缓存的时候，到底应该删除缓存还是更新缓存呢？我们先来看个例子：
 
@@ -140,7 +150,8 @@ Read-Through实际只是在**Cache-Aside**之上进行了一层封装，它会�
 
 有些小伙伴可能会说，并不一定要先操作数据库呀，采用**缓存延时双删**策略，就可以保证数据的一致性啦。什么是延时双删呢？
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRx1UG6aQZibAnC9yS5UezHXE4H8QXN9ahFyVxbPwiaPRXtm96logZpSAA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)延时双删流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRx1UG6aQZibAnC9yS5UezHXE4H8QXN9ahFyVxbPwiaPRXtm96logZpSAA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+延时双删流程
 
 1. 先删除缓存
 2. 再更新数据库
@@ -160,7 +171,8 @@ Read-Through实际只是在**Cache-Aside**之上进行了一层封装，它会�
 
 不管是**延时双删**还是**Cache-Aside的先操作数据库再删除缓存**，都可能会存在第二步的删除缓存失败，导致的数据不一致问题。可以使用这个方案优化：删除失败就多删除几次呀,保证删除缓存成功就可以了呀~ 所以可以引入**删除缓存重试机制**
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRDvhO050QGHAEyVgsvtmSBg6OeNsDLt0PEWajMHwzElgKLpqcAfZ1xA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)删除缓存重试流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PoF8jo1Pmpzr8VflicsVn7fr1ksck7SCRDvhO050QGHAEyVgsvtmSBg6OeNsDLt0PEWajMHwzElgKLpqcAfZ1xA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+删除缓存重试流程
 
 1. 写请求更新数据库
 2. 缓存因为某些原因，删除失败
