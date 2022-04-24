@@ -339,6 +339,20 @@ private Runnable getTask() {
 下面简单画了一下核心线程的序列图：
 ![核心线程序列图](https://www.freesion.com/images/659/09fb052d7a55ab20babba72703a4e743.png)
 
+> 1.客户端创建线程池对象后，调用execute方法提交一个Runnable任务
+
+> 2.execute方法内会调用addWorker方法创建一个worker对象        
+
+> 3.addWorker方法内会调用Worker.thread.start方法，这时候实际调用的是Worker对象的run方法
+
+> 4.Worker中的run方法委托给runWorker方法执行
+
+> 5.runWorker方法中有while循环体，不断的调用getTask获取新任务
+ 
+> 6.getTask方法中通过blockQueue的take方法来获取队列的线程，如果队列为空，则一直阻塞当前线程
+
+> **因此，线程池是通过队列的take方法来阻塞核心线程Worker的run方法，保证核心线程不会因执行完run方法而被系统终止**
+
 ## 结论
 
 线程池当未调用 shutdown 方法时，是通过队列的 take 方法阻塞核心线程（Worker）的 run 方法从而保证核心线程不被销毁的。
