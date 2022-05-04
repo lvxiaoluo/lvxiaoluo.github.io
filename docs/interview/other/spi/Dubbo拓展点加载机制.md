@@ -1,0 +1,713 @@
+# Dubbo拓展点加载机制
+
+**0****1**
+
+**前言**
+
+**0****1**
+
+本篇首先介绍现有Dubbo加载机制的概况，包括Dubbo所做的改进及部分特性。然后介绍加载机制已经存在的一些关键注解，@SPI、@Adaptive、@Activate。然后介绍整个加载机制中最核心的ExtensionLoader的工作流程及实现原理。最后介绍拓展中使用的类动态编译的实现原理。通过本篇的阅读，我们会对Dubbo SPI加载机制有深入的了解，也会对这部分的源码有深入的认识，后续胖友自行阅读源码也会更容易。
+
+
+
+
+
+
+
+
+
+
+
+**0****2**
+
+**加载机制概述**
+
+Dubbo良好的拓展性与两个方面是密不可分的，一是整个框架中针对不同场景，恰到好处的使用了各种设计模式，二就是我们要说的加载机制。基于`Dubbo SPI`的加载机制，让整个框架的接口与具体实现完全解耦，从而给整个框架良好拓展性奠定了基础。
+
+`Dubbo`默认提供了很多可以直接使用的拓展点。`Dubbo`几乎所有的功能组件都是基于拓展机制（SPI）实现的，这些核心拓展点后面会详细说。
+
+`Dubbo SPI`没有直接使用`Java SPI`,而是在它的思想上又做了-定的改进，形成了一套自己的配置规范和特性。同时，`Dubbo SPI`又兼容`Java SPI`。服务在启动的时候，`Dubbo` 就会查找这些扩展点的所有实现。
+
+### **Java SPI**
+
+在说Dubbo SPI之前，我们先说一下`Java SPI`。SPI的全称是`Service Provider Interface`，起初是提供给厂商做插件开发的。关于Java SPI的详细定义和解释，可以参见此处。Java SPI使用了策略模式，一个接口多种实现。我们只声明接口，具体的实现并不在程序中直接确定，而是由程序之外的配置掌控，用于具体实现的装配。具体步骤如下:
+
+1. **定义一个接口及对应的方法。**
+2. **编写该接口的一个实现类。**
+3. **在**`**META-INF/services/**`**目录下，创建一个以接口全路径命名的文件,如**`**com.example.rpc.example.spi.HelloService**`**。**
+4. **文件内容为具体实现类的全路径名，如果有多个，则用分行符分隔。**
+5. **在代码中通过java. util. ServiceLoader来加载具体的实现类。如此一来，** `**HelloService**`**的具体实现就可以由文件**`**com.example.rpc.example.spi.HelloService**`**中配置的实现类来确定了，这里我配置的类为**`**com.example.rpc.example.spi.HelloServiceImpl**`**。**
+
+项目结构如下：
+
+![图片](https://mmbiz.qpic.cn/mmbiz_png/kYCUF3DUwRGv2DV5KwvK42o9mRWJN3f6Cns0rASoKiaCCow64H5Z8PbSNBcVNsJabpHLFUgwp3JMjYODkmzLl6w/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+
+**Java SPI示例代码如下：**
+
+```
+public interface HelloService {
+    void sayHello();
+}
+public class HelloServiceImpl implements HelloService{
+    @Override
+    public void sayHello() {
+        System.out.printf("hello world!");
+    }
+}
+public static void main(String[] args) {
+    ServiceLoader<HelloService> serviceLoader = ServiceLoader.load(HelloService.class);
+    //获取所有的SPI实现，
+    // 循环调用 sayHello()方法，
+    // 会打印出hello world 此处只有一个实现: HelloServiceImpl
+    for (HelloService helloService : serviceLoader) {
+        //此处会输出hello world
+        helloService.sayHello();
+    }
+}
+```
+
+从上面的代码清单中可以看到，`main` 方法里通过`java.util.ServiceLoader`可以获取所有的接口实现，具体调用哪个实现，可以通过用户定制的规则来决定。
+
+### **拓展点加载机制的改进**
+
+Dubbo 的扩展点加载从 JDK 标准的 SPI (Service Provider Interface) 扩展点发现机制加强而来。
+
+Dubbo对JDK 标准的SPI做了一些改进：
+
+- **JDK 标准的 SPI 会一次性实例化扩展点所有实现，如果有扩展实现初始化很耗时，但如果没用上也加载，会很浪费资源。**
+- **如果扩展点加载失败，连扩展点的名称都拿不到了。**
+- **增加了对扩展点 IoC 和 AOP 的支持，一个扩展点可以直接 setter 注入其它扩展点。**
+
+**HelloService接口的Dubbo SPI改造**
+
+1. **在目录**`**META- INF/dubbo/ internal**` **下建立配置文件**`**com.example.rpc.example.spi.HelloService**`**，文件内容如下**
+
+```
+impl=com.example.rpc.example.spi.HelloServiceImpl
+```
+
+1. **为接口类添加SPI注解，设置默认实现为**`**impl**`
+
+```
+@SPI("impl")
+public interface HelloService {
+    void sayHello();
+}
+```
+
+1. **实现类不变**
+
+```
+public class HelloServiceImpl implements HelloService{
+    @Override
+    public void sayHello() {
+        System.out.printf("hello world!");
+    }
+}
+```
+
+1. **调用Dubbo SPI**
+
+```
+public static void main(String[] args) {
+    //通过ExtensionLoader获取接口HelloService.class的默认实现
+    ExtensionLoader<HelloService> extensionLoader =          ExtensionLoader.getExtensionLoader(HelloService.class);
+    HelloService helloService = extensionLoader.getDefaultExtension();
+    //此处会打印出hello world
+    helloService.sayHello();
+}
+```
+
+## **拓展点注解**
+
+
+
+**0****3**
+
+**拓展点注解：@SPI**
+
+@SPI注解可以使用在类、接口和枚举类上，Dubbo框架中都是使用在接口上。它的主要作用就是标记这个接口是一个Dubbo SPI 接口，即是一个扩展点，可以有多个不同的内置或用户定义的实现。运行时需要通过配置找到具体的实现类。@SPI 注解的源码如下所示。
+
+**@SPI 注解的源码**
+
+```
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface SPI {
+
+    /**
+     * 默认实现的key名称
+     * default extension name
+     */
+    String value() default "";
+
+}
+```
+
+我们可以看到SPI注解有一个value属性，通过这个属性，我们可以传入不同的参数来设置这个接口的默认实现类。例如，我们可以看到`Transporter`接口使用`Netty`作为默认实现，代码如下。
+
+```
+@SPI("netty")
+public interface Transporter {
+ ...
+}
+```
+
+Dubbo中很多地方通过`getExtension(Class type, String name)`来获取扩展点接口的具体实现，此时会对传入的Class做校验，判断是否是接口，以及是否有`@SPI`注解，两者缺一不可。
+
+### **拓展点自适应注解：@Adaptive**
+
+`@Adaptive`注解可以标记在类、接口、枚举类和方法上，但是在整个Dubbo框架中，只有几个地方使用在类级别上，如`AdaptiveExtensionFactory`和`AdaptiveCompiler`,其余都标注在方法上。如果标注在接口的方法上，即方法级别注解，则可以通过参数动态获得实现类。方法级别注解在第一次`getExtension`时，会自动生成和编译一个动态的`Adaptive` 类，从而达到动态实现类的效果。
+
+下面我举个例子说一下，拿`Protocol`接口举例，`export`和`refer`接口两个方法添加了`@Adaptive`注解，代码如下，Dubbo在初始化扩展点时，会生成一个`Protocol$Adaptive`类，里面会实现这两个方法，方法里会有一些抽象的通用逻辑，通过`@Adaptive`中传入的参数，找到并调用真正的实现类。熟悉装饰器模式的读者会很容易理解这部分的逻辑。具体实现原理会在后面说。
+
+下面是自动生成的`Protocol$Adaptive#export`实现代码，如代码如下，省略部分无关代码。
+
+**Protocol$Adaptive#export**
+
+```
+public class Protocol$Adaptive implements org.apache.dubbo.rpc.Protocol {
+ public org.apache.dubbo.rpc.Exporter export(org.apache.dubbo.rpc.Invoker arg0) throws  org.apache.dubbo.rpc.RpcException {
+        if (arg0 == null) throw new IllegalArgumentException("org.apache.dubbo.rpc.Invoker argument == null");
+        if (arg0.getUrl() == null)
+            throw new IllegalArgumentException("org.apache.dubbo.rpc.Invoker argument getUrl() == null");
+        org.apache.dubbo.common.URL url = arg0.getUrl();
+        //通过protocol key去寻找实现类的名称
+        String extName = (url.getProtocol() == null ? "dubbo" : url.getProtocol());
+        if (extName == null)
+            throw new IllegalStateException("Failed to get extension (org.apache.dubbo.rpc.Protocol) name from url (" + url.toString() + ") use keys([protocol])");
+        ScopeModel scopeModel = ScopeModelUtil.getOrDefault(url.getScopeModel(), org.apache.dubbo.rpc.Protocol.class);
+        //根据url中的参数 尝试获取真正的拓展点实现类
+        org.apache.dubbo.rpc.Protocol extension = (org.apache.dubbo.rpc.Protocol) scopeModel.getExtensionLoader(org.apache.dubbo.rpc.Protocol.class).getExtension(extName);
+        //最终会调用具体拓展点的bind方法
+        return extension.export(arg0);
+    }
+}
+```
+
+我们从生成的源码中可以看出，自动生成的代码中实现了很多通用的功能，最终会调用真正的接口实现。
+
+当该注解放在实现类上，则整个实现类会直接作为默认实现，不再自动生成上述代码。在扩展点接口的多个实现里，只能有一个实现上可以加`@Adaptive`注解。如果多个实现类都有该注解，则会抛出异常: `More than 1 adaptive class found`。`@Adaptive` 注解的源代码如下。
+
+**Adaptive注解的源代码**
+
+```
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface Adaptive {
+  //数组 可以设置多个key，会按照顺序一次匹配
+    String[] value() default {};
+
+}
+```
+
+该注解也可以传入value参数，是一个数组。我们在代码清单4.9中可以看到，Adaptive可 以传入多个key值，在初始化Adaptive注解的接口时，会先对传入的URL进行key值匹配，第一个key没匹配上则匹配第二个，以此类推。直到所有的key匹配完毕，如果还没有匹配到， 则会使用"驼峰规则"匹配，如果也没匹配到，则会抛出IllegalStateException异常。
+
+什么是"驼峰规则”呢?如果包装类(Wrapper) 没有用Adaptive指定key值，则Dubbo 会自动把接口名称根据驼峰大小写分开，并用符号连接起来，以此来作为默认实现类的名 称，如 `org.apache.dubbo.xxx.YyylnvokerWpapper` 中的 `YyylnvokerWrapper` 会被转换为 `yyy.invoker.wrapper`。
+
+**为什么有些实现在实现类上会标注@Adaptivene ?**
+
+放在实现类上，主要是为了直接固定对 应的实现而不需要动态生成代码实现，就像策略模式直接确定实现类。在代码中的实现方式是: `ExtensionLoader`中会缓存两个与`@Adaptive`有关的对象，一个缓存在`cachedAdaptiveClass`中， 即`Adaptive`具体实现类的`Class`类型;另外一个缓存在`cachedAdaptivelnstance`中，即Class 的具体实例化对象。在扩展点初始化时，如果发现实现类有@Adaptive注解，则直接赋值给 `cachedAdaptiveClass` , 后续实例化类的时候，就不会再动态生成代码，直接实例化 `cachedAdaptiveClass`,并把实例缓存到`cachedAdaptivelnstance`中。如果注解在接口方法上， 则会根据参数，动态获得扩展点的实现，会生成Adaptive类,再缓存到 `cachedAdaptivelnstance` 中。
+
+### **拓展点自动激活注解：@Activate**
+
+@Activate可以标记在类、接口、枚举类和方法上。主要使用在有多个扩展点实现、需要根 据不同条件被激活的场景中，如Filter需要多个同时激活，因为每个Filter实现的是不同的功能。©Activate可传入的参数很多，如下表：
+
+| **参数名**        | **效果**                                       |
+| :---------------- | :--------------------------------------------- |
+| String[] group()  | URL中的分组如果匹配则激活，则可以设置多个      |
+| String[] value()  | 查找URL中如果含有该key值，则会激活             |
+| String[] before() | 填写扩展点列表，表示哪些扩展点要在本扩展点之前 |
+| String[] after()  | 同上，表示哪些需要在本扩展点之后               |
+| int order()       | 整型，直接的排序信息                           |
+
+
+
+**0****4**
+
+**ExtensionLoader的工作原理**
+
+`ExtensionLoader`是整个扩展机制的主要逻辑类，在这个类里面实现了配置的加载、扩展类 缓存、自适应对象生成等所有工作。下面就结合代码讲一下整个`ExtensionLoader`的工作流程。
+
+### **工作流程**
+
+`ExtensionLoader` 的逻辑入口可以分为 `getExtension`、`getAdaptiveExtension`、 `getActivateExtension`三个，分别是获取普通扩展类、获取自适应扩展类、获取自动激活的扩 展类。总体逻辑都是从调用这三个方法开始的，每个方法可能会有不同的重载的方法，根据不 同的传入参数进行调整，具体流程如图所示。
+
+![图片](https://mmbiz.qpic.cn/mmbiz_png/kYCUF3DUwRGv2DV5KwvK42o9mRWJN3f6nNoGnfzSwqXMqGOJyRJTRw9VY2gmoSlxxCpBxsC7RCmX7UAeltuwuQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+
+三个入口中,`getActivateExtension`对`getExtension` 的依赖比较`getAdaptiveExtension` 则相对独立。
+
+`getActivateExtension`方法只是根据不同的条件同时激活多个普通拓展类。因此，该方法中只会做一些通用的判断逻辑，如接口是否包含`@Activate`注解、匹配条件是否符合等。最终还是通过调用`getExtension`方法获得具体扩展点实现类。
+
+`getExtension(String name)`是整个扩展加载器中最核心的方法，实现了一个完整的普通扩 展类加载过程。加载过程中的每一步，都会先检查缓存中是否己经存在所需的数据，如果存在 则直接从缓存中读取，没有则重新加载。这个方法每次只会根据名称返回一个扩展点实现类。初始化的过程可以分为4 步:
+
+1. **框架读取SPI对应路径下的配置文件，并根据配置加载所有扩展类并缓存(不初始化)。**
+2. **根据传入的名称初始化对应的扩展类。**
+3. **尝试查找符合条件的包装类:包含扩展点的setter方法，例如**`**setProtocol(Protocol protocol)**`**方法会自动注入**`**protocol**`**扩展点实现;包含与扩展点类型相同的构造函数，为其注入扩 展类实例，例如本次初始化了一个ClassA,初始化完成后，会寻找构造参数中需要ClassA的 包装类(**`**Wrapper**`**),然后注入ClassA实例，并初始化这个包装类。**
+4. **返回对应的扩展类实例。**
+
+`getAdaptiveExtension`也相对独立，只有加载配置信息部分与`getExtension`共用了同一个 方法。和获取普通扩展类一样，框架会先检查缓存中是否有已经初始化化好的`Adaptive`实例， 没有则调用`createAdaptiveExtension`重新初始化。初始化过程分为4步:
+
+1. **和**`**getExtension**` **一样先加载配置文件。**
+2. **生成自适应类的代码字符串。**
+3. **获取类加载器和编译器，并用编译器编译刚才生成的代码字符串。Dubbo 一共有三种 类型的编译器实现，这些内容会在4.4节讲解。**
+4. **返回对应的自适应类实例。接下来，我们就详细看一下** `**getExtension**`**、**`**getAdaptiveExtension**`**、** `**getActivateExtension**` **这三个流程的实现。**
+
+### **getExtension的实现原理**
+
+`getExtension`的主流程上面已经说过了，下面来详细说下每一步的实现原理。
+
+当调用getExtension(String name)方法时，会先检查缓存中是否有现成的数据，没有则 调用`createExtension`开始创建。这里有个特殊点，如果getExtension传入的name是true, 则加载并返回默认扩展类。
+
+在调用`createExtension`开始创建的过程中，也会先检查缓存中是否有配置信息，如果不 存在扩展类，则会从`META-INF/services/`、`META-INF/dubbo/`、`META-INF/dubbo/internal/`这几个路径中读取所有的配置文件，通过I/O 读取字符流，然后通过解析字符串，得到配置文件中 对应的扩展点实现类的全称(如 `org.apache.dubbo.common.extensionloader.activate.impl. GroupActivateExtImpl)`。扩展点配置信息加载过程的源码如下。
+
+**拓展点配置信息加载过程的源码**
+
+```
+  private Map<String, Class<?>> getExtensionClasses() {
+        // 从缓存中获取已加载的拓展类
+        Map<String, Class<?>> classes = cachedClasses.get();
+        // 双重检查
+        if (classes == null) {
+            synchronized (cachedClasses) {
+                classes = cachedClasses.get();
+                if (classes == null) {
+                    // 开始加载拓展类
+                    classes = loadExtensionClasses();
+                    cachedClasses.set(classes);
+                }
+            }
+        }
+        return classes;
+    }
+
+
+  /**
+     * 在GetExtensionClass中同步
+     * synchronized in getExtensionClasses
+     */
+    private Map<String, Class<?>> loadExtensionClasses() {
+        //检查是否有SPI注解。如果有，则获取注解中填写的名称，并缓存为默认实现名。
+        //如@SPI(" impl")会保存impl为默认实现
+        cacheDefaultExtensionName();
+
+        Map<String, Class<?>> extensionClasses = new HashMap<>();
+
+        for (LoadingStrategy strategy : strategies) {
+            // 加载指定文件夹下的配置文件
+            loadDirectory(extensionClasses, strategy, type.getName());
+
+            // 兼容旧的ExtensionFactory
+            if (this.type == ExtensionInjector.class) {
+                loadDirectory(extensionClasses, strategy, ExtensionFactory.class.getName());
+            }
+        }
+
+        return extensionClasses;
+    }
+
+  /**
+     * 加载指定文件夹下的配置文件
+     * @param extensionClasses
+     * @param strategy
+     * @param type
+     */
+    private void loadDirectory(Map<String, Class<?>> extensionClasses, LoadingStrategy strategy, String type) {
+        //加载org.apache.xxxxx
+        loadDirectory(extensionClasses, strategy.directory(), type, strategy.preferExtensionClassLoader(),
+            strategy.overridden(), strategy.excludedPackages(), strategy.onlyExtensionClassLoaderPackages());
+        String oldType = type.replace("org.apache", "com.alibaba");
+        //加载com.alibaba.xxxxx
+        loadDirectory(extensionClasses, strategy.directory(), oldType, strategy.preferExtensionClassLoader(),
+            strategy.overridden(), strategy.excludedPackages(), strategy.onlyExtensionClassLoaderPackages());
+    }
+```
+
+加载完扩展点配置后，再通过反射获得所有扩展实现类并缓存起来。注意，此处仅仅是把 Class加载到`JVM`中，但并没有做Class初始化。在加载Class文件时，会根据Class上的注解来判断扩展点类型，再根据类型分类做缓存。扩展类的缓存分类代码如下：
+
+**拓展类的缓存分类**
+
+```
+ private void loadClass(Map<String, Class<?>> extensionClasses, java.net.URL resourceURL, Class<?> clazz, String name,
+                           boolean overridden) throws NoSuchMethodException {
+        if (!type.isAssignableFrom(clazz)) {
+            throw new IllegalStateException("Error occurred when loading extension class (interface: " +
+                type + ", class line: " + clazz.getName() + "), class "
+                + clazz.getName() + " is not subtype of interface.");
+        }
+        // 检测目标类上是否有 Adaptive 注解
+        if (clazz.isAnnotationPresent(Adaptive.class)) {
+            // 如果发现是多个自适应类  设置 cachedAdaptiveClass缓存
+            cacheAdaptiveClass(clazz, overridden);
+            // 检测 clazz 是否是 Wrapper 类型
+        } else if (isWrapperClass(clazz)) {
+            // 如果是包装类  存储 clazz 到 cachedWrapperClasses 缓存中
+            cacheWrapperClass(clazz);
+        } else {
+            if (StringUtils.isEmpty(name)) {
+                name = findAnnotationName(clazz);
+                if (name.length() == 0) {
+                    throw new IllegalStateException("No such extension name for the class " + clazz.getName() + " in the config " + resourceURL);
+                }
+            }
+
+            String[] names = NAME_SEPARATOR.split(name);
+            if (ArrayUtils.isNotEmpty(names)) {
+                cacheActivateClass(clazz, names[0]);
+                for (String n : names) {
+                    //不是自适应类型,也不是包装类型,剩下的就是普通扩展类了，也会缓存起来
+                    //注意:自动激活也是普通扩展类的-种，只是会根据不同条件同时激活罢了
+                    cacheName(clazz, n);
+                    saveInExtensionClass(extensionClasses, clazz, n, overridden);
+                }
+            }
+        }
+    }
+```
+
+最后，根据传入的name找到对应的类并通过Class.forName方法进行初始化，并为其注入 依赖的其他扩展类(自动加载特性)。当扩展类初始化后，会检查一次包装扩展类`Set wrapperclasses`,查找包含与扩展点类型相同的构造函数，为其注入刚初始化的扩展类。
+
+**依赖注入**
+
+```
+injectExtension(instance); // 向拓展类实例中注入依赖
+ List<Class<?>> wrapperClassesList = new ArrayList<>();
+wrapperClassesList.addAll(cachedWrapperClasses);
+if (CollectionUtils.isNotEmpty(wrapperClassesList)) {
+  // 循环创建 Wrapper 实例
+  for (Class<?> wrapperClass : wrapperClassesList) {
+    Wrapper wrapper = wrapperClass.getAnnotation(Wrapper.class);
+    if (wrapper == null
+        || (ArrayUtils.contains(wrapper.matches(), name) && !ArrayUtils.contains(wrapper.mismatches(), name))) {
+      // 将当前 instance 作为参数传给 Wrapper 的构造方法，并通过反射创建 Wrapper 实例。
+      // 然后向 Wrapper 实例中注入依赖，最后将 Wrapper 实例再次赋值给 instance 变量
+      instance = injectExtension((T) wrapperClass.getConstructor(type).newInstance(instance));
+      instance = postProcessAfterInitialization(instance, name);
+    }
+  }
+                }
+```
+
+在`injectExtension`方法中可以为类注入依赖属性,它使用了 `ExtensionFactory#getExtension (Class type, String name)`来获取对应的bean实例，这个工厂接口会在后面详细说明。我们先来了解一下注入的实现原理。
+
+`injectExtension`方法总体实现了类似Spring的IoC机制，其实现原理比较简单:首先通 过反射获取类的所有方法，然后遍历以字符串set开头的方法，得到set方法的参数类型，再通 过 `ExtensionFactory`寻找参数类型相同的扩展类实例，如果找到，就设值进去，代码如下。
+
+**注入依赖拓展类实现代码**
+
+```
+for (Method method : instance.getClass().getMethods()) {
+  //找到以set开头的方法，要求只能有一个参数，并且是public
+    if (!isSetter(method)) {
+        continue;
+    }
+    /**
+     * 检查是否需要自动注入这个属性
+     * Check {@link DisableInject} to see if we need auto injection for this property
+     */
+    if (method.getAnnotation(DisableInject.class) != null) {
+        continue;
+    }
+    // 获取 setter 方法参数类型
+    Class<?> pt = method.getParameterTypes()[0];
+    if (ReflectUtils.isPrimitives(pt)) {
+        continue;
+    }
+
+    try {
+        // 获取属性名，比如 setName 方法对应属性名 name
+        String property = getSetterProperty(method);
+        // 从 ObjectFactory 中获取依赖对象
+        Object object = injector.getInstance(pt, property);
+        if (object != null) {
+            // 通过反射调用 setter 方法设置依赖
+            method.invoke(instance, object);
+        }
+    } catch (Exception e) {
+        logger.error("Failed to inject via method " + method.getName()
+            + " of interface " + type.getName() + ": " + e.getMessage(), e);
+    }
+
+}
+```
+
+从源码中可以知道，包装类的构造参数注入也是通过`injectExtension`方法实现的。
+
+### **getAdaptiveExtension的实现原理**
+
+在`getAdaptiveExtension()`方法中，会为扩展点接口自动生 成实现类字符串，实现类主要包含以下逻辑:为接口中每个有`Adaptive`注解的方法生成默认实现(没有注解的方法则生成空实现)，每个默认实现都会从`URL`中提取`Adaptive`参数值，并 以此为依据动态加载扩展点。然后，框架会使用不同的编译器，把实现类字符串编译为自适应 类并返回。本节主要讲解字符串代码生成的实现原理。
+
+生成代码的逻辑主要分为7 步，具体步骤如下:
+
+1. **生成package、import、类名称等头部信息。此处只会引入一个类**`**ExtensionLoader**`**。为了不写其他类的import方法，其他方法调用时全部使用全路径。类名称会变为“接口名称+** **Adpative`。**
+2. **遍历接口所有方法，获取方法的返回类型、参数类型、异常类型等。为第(3)步判 断是否为空值做准备。**
+3. **生成参数为空校验代码，如参数是否为空的校验。如果有远程调用，还会添加**`**Invocation**` **参数为空的校验。**
+4. **生成默认实现类名称。如果©Adaptive注解中没有设定默认值，则根据类名称生成， 如**`**YyylnvokerWrapper**`**会被转换为**`**yyy.invoker.wrapper**`**。生成的规则是不断找大写字母，并把它 们用连接起来。得到默认实现类名称后，还需要知道这个实现是哪个扩展点的。**
+5. **生成获取扩展点名称的代码。根据@Adaptive注解中配置的key值生成不同的获取代 码，例如:如果是**`**@Adaptive(“protocol”)**`**,则会生成**`**url.getProtocol()**` **。**
+6. **生成获取具体扩展实现类代码。最终还是通过getExtension(extName)方法获取自适 应扩展类的真正实现。如果根据URL中配置的key没有找到对应的实现类，则会使用第(4) 步中生成的默认实现类名称去找。**
+7. **生成调用结果代码。**
+
+下面我们用Dubbo。源码中自带的一个单元测试来演示代码生成过程，代码如下。
+
+**自适应类生成的代码**
+
+```
+//SPI 配置文件中的配置
+impl1=org.apache.dubbo.common.extension.ext1.impl.SimpleExtImpl1
+@SPI
+public interface HasAdaptiveExt {
+  //自适应接口、echo 方法上有 @Adaptive注解
+    @Adaptive
+    String echo(URL url, String s);
+}
+
+//在测试方法中调用这个自适应类
+SimpleExt ext = ExtensionLoader.getExtensionLoader(HasAdaptiveExt.class).getAdaptiveExtension(); 
+```
+
+生成一下自适应代码
+
+```
+package org.apache.dubbo.common.extension.adaptive;
+import org.apache.dubbo.rpc.model.ScopeModel;
+import org.apache.dubbo.rpc.model.ScopeModelUtil;
+public class HasAdaptiveExt$Adaptive implements org.apache.dubbo.common.extension.adaptive.HasAdaptiveExt {
+    public java.lang.String echo(org.apache.dubbo.common.URL arg0, java.lang.String arg1)  {
+        if (arg0 == null) throw new IllegalArgumentException("url == null");
+        org.apache.dubbo.common.URL url = arg0;
+        String extName = url.getParameter("has.adaptive.ext", "adaptive");
+        if(extName == null) throw new IllegalStateException("Failed to get extension (org.apache.dubbo.common.extension.adaptive.HasAdaptiveExt) name from url (" + url.toString() + ") use keys([has.adaptive.ext])");
+        ScopeModel scopeModel = ScopeModelUtil.getOrDefault(url.getScopeModel(), org.apache.dubbo.common.extension.adaptive.HasAdaptiveExt.class);
+      //实现类变为配置文件中的 org.apache.dubbo.common.extension.adaptive.impl.HasAdaptiveExt_ManualAdaptive
+        org.apache.dubbo.common.extension.adaptive.HasAdaptiveExt extension = (org.apache.dubbo.common.extension.adaptive.HasAdaptiveExt)scopeModel.getExtensionLoader(org.apache.dubbo.common.extension.adaptive.HasAdaptiveExt.class).getExtension(extName); 
+        return extension.echo(arg0, arg1);
+    }
+}
+```
+
+生成完代码之后就要对代码进行编译，生成一个新的Classo Dubbo中的编译器也是一个自 适应接口，但`@Adaptive`注解是加在实现类`AdaptiveCompiler`上的。这样一来`AdaptiveCompiler` 就会作为该自适应类的默认实现，不需要再做代码生成和编译就可以使用了。
+
+如果一个接口上既有`@SPI(”impl”)`注解，方法上又有`@Adaptive(”impl2”)`注解，那么会以哪个key作为默认实现呢?由上面动态生成的SAdaptive类可以得知，最终动态生成的实现方法会 是`url.getParameter("impl2", "impl”)`,即优先通过`@Adaptive`注解传入的key去查找扩展实现类; 如果没找到，则通过`@SPI`注解中的key去查找;如果@SPI注解中没有默认值，则把类名转化 为key,再去查找。
+
+### **getActivateExtension的实现原理**
+
+接下来，`@Activate的`实现原理，先从它的入口方法说起。`getActivateExtension(URL url, String key, String group)`方法可以获取所有自动激活扩展点。参数分别是URL、URL中指定的key(多个则用逗号隔开)和URL中指定的组信息(group)0 其实现逻辑非常简单，当调用该方法时，主线流程分为4 步:
+
+(1) 检查缓存，如果缓存中没有，则初始化所有扩展类实现的集合。
+
+(2) 遍历整个`@Activate`注解集合，根据传入URL匹配条件(匹配group、name等)，得 到所有符合激活条件的扩展类实现。然后根据`@Activate`。中配置的before、after、order等参数进 行排序。
+
+(3) 遍历所有用户自定义扩展类名称，根据用户URL配置的顺序，调整扩展点激活顺序，遵循用户在URL中配置的顺序。
+
+(4) 返回所有自动激活类集合。
+
+获取`Activate`扩展类实现，也是通过`getExtension`得到的。因此，可以认为`getExtension`是其他两种Extension的基石。
+
+此处有一点需要注意，如果URL的参数中传入了`-default,`则所有的默认`@Activate`都不会被激活，只有URL参数中指定的扩展点会被激活。如果传入了符号开头的扩展点名， 则该扩展点也不会被自动激活。例如:-xxxx,表示名字为xxxx的扩展点不会被激活。
+
+### **ExtensionInjector的实现原理**
+
+经过前面的介绍，我们可以知道`ExtensionLoader`类是整个SPI的核心。但是，`ExtensionLoader`类本身又是如何被创建的呢?
+
+我们知道`RegistryFactory`工厂类通过`@Adaptive( ("protocol"})`注解动态查找注册中心实 现，根据URL中的`protocol`参数动态选择对应的注册中心工厂，并初始化具体的注册中心客户端。而实现这个特性的`ExtensionLoader`类，本身又是通过工厂方法`ExtensionInjector#getInstance`创建的，并且这个注射接口上也有SPI注解，还有多个实现。
+
+**ExtensionInjector接口**
+
+```
+@SPI
+public interface ExtensionInjector {
+ /**
+     * Get instance of specify type and name.
+     *
+     * @param type object type.
+     * @param name object name.
+     * @return object instance.
+     */
+    <T> T getInstance(Class<T> type, String name);
+
+    @Override
+    default void setExtensionAccessor(ExtensionAccessor extensionAccessor) {
+    }
+}
+```
+
+既然注射接口有多个实现，那么是怎么确定使用哪个注射类实现的呢?我们可以看到 `AdaptiveExtensionInjector` 这个实现类工厂上有`@Adaptive` 注解。因此，`AdaptiveExtensionInjector` 会作为一开始的默认实现。注射类之间的关系如图
+
+![图片](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
+
+可以看到，除了`AdaptiveExtensionInjector`,还有`SpiExtensionInjector` 和`SpringExtensionInjector` 两个实现类。也就是说，我们除了可以从`Dubbo SPI`管理的容器中获取扩展点实例，还可以从`Spring` 容器中获取。
+
+那么`Dubbo`和`Spring`容器之间是如何打通的呢?我们先来看`SpringExtensionInjector`的 实现，该注射类提供了初始化`Spring`上下文的方法，在使用之前会调用`init`方法，初始化`SpringExtensionInjector`中的spring上下文。当调用`getInstance`获取扩展类时，上下文已经准备好，如果没有返回null，如果有就继续执行`getOptionalBean`（获取Bean）,代码如下
+
+```
+     private ApplicationContext context;
+    public ApplicationContext getContext() {
+        return context;
+    }
+
+    public void init(ApplicationContext context) {
+        this.context = context;
+    }
+    
+        
+    public <T> T getInstance(Class<T> type, String name) {
+
+        if (context == null) {
+            // ignore if spring context is not bound
+            return null;
+        }
+
+        //check @SPI annotation
+        if (type.isInterface() && type.isAnnotationPresent(SPI.class)) {
+            return null;
+        }
+
+        T bean = getOptionalBean(context, name, type);
+        if (bean != null) {
+            return bean;
+        }
+
+        //logger.warn("No spring extension (bean) named:" + name + ", try to find an extension (bean) of type " + type.getName());
+        return null;
+    }
+```
+
+那么Spring的上下文又是在什么时候被保存起来的呢?我们可以通过代码搜索得知，在 ReferenceBean和ServiceBean中会调用静态方法保存Spring上下文，即一个服务被发布或被 引用的时候，对应的Spring上下文会被保存下来。
+
+我们再看一下`SpiExtensionInjector`,主要就是获取扩展点接口对应的`Adaptive`实现类。例 如:某个扩展点实现类 ClassA 上有`@Adaptive` 注解，则调用 `SpiExtensionInjector#getInstance`会直接返回ClassA实例，代码如下。
+
+**`\**SpiExtensionInjector\**`源码**
+
+```
+public <T> T getInstance(Class<T> type, String name) {
+    if (type.isInterface() && type.isAnnotationPresent(SPI.class)) {
+        ExtensionLoader<T> loader = extensionAccessor.getExtensionLoader(type);
+        if (loader == null) {
+            return null;
+        }
+       //根据类型获取所有的扩展点加载器
+        if (!loader.getSupportedExtensions().isEmpty()) {
+            return loader.getAdaptiveExtension();
+        }
+    }
+    return null;
+}
+```
+
+经过一番流转，最终还是回到了默认实现`AdaptiveExtensionnInjector`是哪个,因为该注射类上有 `@Adaptive`注解。这个默认注射器在初始化方法中就获取了所有扩展注射类并缓存起来，包括`SpiExtensionnInjector`和 `SpringExtensionnInjector`。`AdaptiveExtensionInjector`初始化方法如下。
+
+```
+//拓展注射器集合
+    private List<ExtensionInjector> injectors = Collections.emptyList();
+
+public void initialize() throws IllegalStateException {
+        //获取拓展注射器的ExtensionLoader
+        ExtensionLoader<ExtensionInjector> loader = extensionAccessor.getExtensionLoader(ExtensionInjector.class);
+        List<ExtensionInjector> list = new ArrayList<ExtensionInjector>();
+        //获取已经支持的拓展类
+        for (String name : loader.getSupportedExtensions()) {
+            //通过拓展类name 获取拓展类注射器 并添加到集合中 injectors
+            list.add(loader.getExtension(name));
+        }
+        injectors = Collections.unmodifiableList(list);
+    }
+```
+
+被`AdaptiveExtensionnInjector`缓存的工厂会通过`TreeSet`进行排序，SPI排在前面，Spring 排在后面。当调用`getInstance`方法时，会遍历所有的工厂，先从SPI容器中获取扩展类;如 果没找到，则再从Spring容器中查找。我们可以理解为，`AdaptiveExtensionnInjector`持有了所 有的具体工厂实现，它的`getInstance`方法中只是遍历了它持有的所有工厂，最终还是调用 SPI或Spring工厂实现的`getInstance`方法。`getInstance`方法代码如下：
+
+```
+public <T> T getInstance(Class<T> type, String name) {
+  //遍历所有工厂进行查找，顺序是 SPI ->Spring
+    for (ExtensionInjector injector : injectors) {
+        T extension = injector.getInstance(type, name);
+        if (extension != null) {
+            return extension;
+        }
+    }
+    return null;
+}
+```
+
+
+
+**0****5**
+
+**拓展点动态编译的实现原理**
+
+`Dubbo SPI`的自适应特性让整个框架非常灵活，而动态编译又是自适应特性的基础，因为 动态生成的自适应类只是字符串，需要通过编译才能得到真正的Class。虽然我们可以使用反射 来动态代理一个类，但是在性能上和直接编译好的Class会有一定的差距。Dubbo SPI通过代码 的动态生成，并配合动态编译器，灵活地在原始类基础上创建新的自适应类。下面介绍`Dubbo SPI`动态编译器的种类及对应的实现原理。
+
+### **总体结构**
+
+Dubbo中有三种代码编译器，分别是`JDK`编译器、`Javassist`编译器和`AdaptiveCompiler`编译器。这几种编译器都实现了 `Compiler`接口，编译器类之间的关系如图
+
+![图片](https://mmbiz.qpic.cn/mmbiz_png/kYCUF3DUwRGv2DV5KwvK42o9mRWJN3f6tK7ib6Ndm8nJRnyf7wYYtPoRLxoG2Jz9GgTrEqXkz6SuzXZWAkzXsiaQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+
+`Compiler`接口上含有一个SPI注解，注解的默认值是`@SPI(”javassist”)`, 很明显，`Javassist`编译器将作为默认编译器。如果用户想改变默认编译器，则可以通过 <dubbo:application compiler="jdk" />标签进行配置。
+
+`AdaptiveCompiler`上面有`@Adaptive`注解，说明`AdaptiveCompiler`会固定为默认实现，这 个`Compiler`的主要作用和`AdaptiveExtensionInjector`相似，就是为了管理其他`Compiler`,代码如下：
+
+**AdaptiveCompiler的逻辑**
+
+```
+    public static void setDefaultCompiler(String compiler) {
+      //设置默认的编译器名称
+        DEFAULT_COMPILER = compiler;
+    }
+
+    @Override
+    public Class<?> compile(String code, ClassLoader classLoader) {
+        Compiler compiler;
+        ExtensionLoader<Compiler> loader = frameworkModel.getExtensionLoader(Compiler.class);
+        String name = DEFAULT_COMPILER; // copy reference
+        if (name != null && name.length() > 0) {
+            compiler = loader.getExtension(name);
+        } else {
+            compiler = loader.getDefaultExtension();
+        }
+       //通过ExtensionLoader获取对应的译器扩展类实现，调用真正的compile做编译
+        return compiler.compile(code, classLoader);
+    }
+```
+
+`AdaptiveCompiler#setDefaultCompiler` 方法会在ApplicationConfig 中被调用，也就是Dubbo 在启动时，会解析配置中的``标签，获取设置的值，初始化对应的编译器。如果没有标签设置，则使用`@SPI(“javassist”)`中的设置，即`JavassistCompiler`。然后看一下`AbstpactCompiler`,它是一个抽象类，无法实例化，但在里面封装了通用的模 板逻辑。还定义了一个抽象方法`doCompile` , 留给子类来实现具体的编译逻辑。`JavassistCompiler`和`JdkCompiler`都实现了这个抽象方法。
+
+`AbstractCompiler`的主要抽象逻辑如下:
+
+1. **通过正则匹配出包路径、类名，再根据包路径、类名拼接出全路径类名。**
+2. **尝试通过**`**Class.forName**`**加载该类并返回，防止重复编译。如果类加载器中没有这个类，则进入第3 步。**
+3. **调用**`**doCompile**`**方法进行编译。这个抽象方法由子类实现。下面将介绍两种编译器的具体实现。**
+
+下面将介绍两种编译器的具体实现。
+
+### **Javassist动态代码编译**
+
+Java中动态生成Class的方式有很多，可以直接基于字节码的方式生成，常见的工具库有`CGLIB`、`ASM`、`Javassist`等。而自适应扩展点使用了生成字符串代码再编译为Class的方式。
+
+Dubbo中`JavassistCompiler`的实现原理也很清晰了。由于 我们之前已经生成了代码字符串，因此在`JavassistCompiler`中，就是不断通过正则表达式匹 配不同部位的代码，然后调用`Javassist`库中的API生成不同部位的代码，最后得到一个完整的 Class对象。具体步骤如下:
+
+(1) 初始化`Javassist`,设置默认参数，如设置当前的`classpath`。
+
+(2) 通过正则匹配出所有`import`的包，并使用`Javassist`添加`import`。
+
+(3) 通过正则匹配出所有`extends`的包，创建`Class`对象，并使用`Javassist`添加`extends`。
+
+(4) 通过正则匹配出所有`implements`包，并使用`Javassist`添加`implements`。
+
+(5) 通过正则匹配出类里面所有内容，即得到`{}`中的内容，再通过正则匹配出所有方法, 并使用`Javassist`添加类方法。
+
+(6) 生成Class对象。
+
+`JavassistCompiler`继承了抽象类`Abstractcompiler`,需要实现父类定义的一个抽象方法`doCompileo`以上步骤就是整个`doCompile`方法在`JavassistCompiler`中的实现。
+
+### **JDK动态代码编译**
+
+`JdkCompiler`是`Dubbo`编译器的另一种实现，使用了 `JDK`自带的编译器，原生JDK编译器 包位于 `javax.tools`下。主要使用了三个东西:JavaFileObject 接口、 `ForwardingJavaFileManager` 接口、`JavaCompiler.CompilationTask` 方法。整个动态编译过程 可以简单地总结为:首先初始化一个`JavaFileObject`对象，并把代码字符串作为参数传入构造 方法，然后调用`JavaCompiler.CompilationTask`方法编译出具体的类。`JavaFileManager`负责 管理类文件的输入/输出位置。以下是每个接口/方法的简要介绍:
+
+1. `**JavaFileObject**`**接口。字符串代码会被包装成一个文件对象，并提供获取二进制流 的接口。Dubbo框架中的**`**JavaFileObjectlmpl**`**类可以看作该接口一种扩展实现，构造方法中需 要传入生成好的字符串代码，此文件对象的输入和输出都是**`**ByteArray**`**流。由于** `**SimpleJavaFileObject**`**、**`**JavaFileObject**`**之间的关系属于JDK中的知识，因此在本篇不深入讲解，有兴趣的读者可以自行查看JDK源码。**
+2. `**JavaFileManager**`**接口。主要管理文件的读取和输出位置。JDK 没有可以直接使用的实现类，唯一的实现类**`**ForwardingJavaFileManager**`**构造器又是**`**protected**`**类型。因此**`**Dubbo**`**中 定制化实现了一个**`**JavaFileManagerlmpl**`**类，并通过一个自定义类加载器**`**ClassLoaderlmpl**`**完 成资源的加载。**
+3. `**JavaCompiler.CompilationTask**` **把** `**JavaFileObject**` **对象编译成具体的类。**
+
+**小结**
+
+本章的内容比较多，首先介绍了 `Dubbo SPI`的一些概要信息,包括与`Java SPI`的区别、`Dubbo SPI`的新特性、配置规范和内部缓存等。其次介绍了 `Dubbo SPI`中最重要的三个注解:`@SPI`、 `@Adaptive`、`@Activate`,讲解了这几个注解的作用及实现原理。然后结合`ExtensionLoader`类 的源码介绍了整个`Dubbo SPI`中最关键的三个入口: `getExtension`、`getAdaptiveExtension`、 `getActivateExtension`,并讲解了创建 `ExtensionLoader` 的工厂(`ExtensionInjector`)的工作原 理。最后还讲解了自适应机制中动态编译的实现原理。
