@@ -235,13 +235,13 @@ MySQL 缓冲池加入了一个 “老生代停留时间窗口” 的机制：
 
 相关推荐：
 
-《[写一个 cache，要掌握哪些技术点](https://link.juejin.cn/?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMjM5ODYxMDA5OQ%3D%3D%26mid%3D2651962373%26idx%3D1%26sn%3D7bb5925b94ea1240abcf89e2e5f89916%26chksm%3Dbd2d09d98a5a80cf9e16ab67df608989012e503b116edbf0feac12e05f280ec4da97bf44b952%26scene%3D21%23wechat_redirect)》
+《[写一个 cache，要掌握哪些技术点](https://link.juejin.cn/?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMjM5ODYxMDA5OQ%3D%3D%26mid%3D2651962373%26idx%3D1%26sn%3D7bb5925b94ea1240abcf89e2e5f89916%26chksm%3Dbd2d09d98a5a80cf9e16ab67df608989012e503b116edbf0feac12e05f280ec4da97bf44b952%26scene%3D21%23wechat_redirect) 》
 
-《[6 条 shell 小技巧，让脚本更专业 | 1 分钟系列](https://link.juejin.cn/?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMjM5ODYxMDA5OQ%3D%3D%26mid%3D2651962411%26idx%3D1%26sn%3Dd6d46fd5ae0b4779770cbbfd808fa430%26chksm%3Dbd2d09f78a5a80e12c96f4dcc810c2a44708b62232afca1ad065a3060458bcdf88132eec8c45%26scene%3D21%23wechat_redirect)》
+《[6 条 shell 小技巧，让脚本更专业 | 1 分钟系列](https://link.juejin.cn/?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMjM5ODYxMDA5OQ%3D%3D%26mid%3D2651962411%26idx%3D1%26sn%3Dd6d46fd5ae0b4779770cbbfd808fa430%26chksm%3Dbd2d09f78a5a80e12c96f4dcc810c2a44708b62232afca1ad065a3060458bcdf88132eec8c45%26scene%3D21%23wechat_redirect) 》
 
-《[MyISAM 与 InnoDB 的索引差异 | 1 分钟系列](https://link.juejin.cn/?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMjM5ODYxMDA5OQ%3D%3D%26mid%3D2651961494%26idx%3D1%26sn%3D34f1874c1e36c2bc8ab9f74af6546ec5%26chksm%3Dbd2d0d4a8a5a845c566006efce0831e610604a43279aab03e0a6dde9422b63944e908fcc6c05%26scene%3D21%23wechat_redirect)》
+《[MyISAM 与 InnoDB 的索引差异 | 1 分钟系列](https://link.juejin.cn/?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMjM5ODYxMDA5OQ%3D%3D%26mid%3D2651961494%26idx%3D1%26sn%3D34f1874c1e36c2bc8ab9f74af6546ec5%26chksm%3Dbd2d0d4a8a5a845c566006efce0831e610604a43279aab03e0a6dde9422b63944e908fcc6c05%26scene%3D21%23wechat_redirect) 》
 
-《[两个小工具，分析 MySQL 死锁](https://link.juejin.cn/?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMjM5ODYxMDA5OQ%3D%3D%26mid%3D2651962432%26idx%3D1%26sn%3D3459e82428cb9bb1de4677fa6b5a1c2d%26chksm%3Dbd2d099c8a5a808af5926a8be9c900c0bca57a8b8e61b192272d919e38d607a03b5ac4e0990a%26scene%3D21%23wechat_redirect)》
+《[两个小工具，分析 MySQL 死锁](https://link.juejin.cn/?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMjM5ODYxMDA5OQ%3D%3D%26mid%3D2651962432%26idx%3D1%26sn%3D3459e82428cb9bb1de4677fa6b5a1c2d%26chksm%3Dbd2d099c8a5a808af5926a8be9c900c0bca57a8b8e61b192272d919e38d607a03b5ac4e0990a%26scene%3D21%23wechat_redirect) 》
 
 调研：**缓冲池**是**缓存**的差别是啥？
 
