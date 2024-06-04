@@ -55,7 +55,7 @@
 
 Java中的线程池核心实现类是ThreadPoolExecutor，本章基于JDK 1.8的源码来分析Java线程池的核心设计与实现。我们首先来看一下ThreadPoolExecutor的UML类图，了解下ThreadPoolExecutor的继承关系。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJnCZbQGM7L1X4KLNnueMVM7KnvJibxliaETVa8ib6sUXyuYuibuctRmrxHA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图1 ThreadPoolExecutor UML类图
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJnCZbQGM7L1X4KLNnueMVM7KnvJibxliaETVa8ib6sUXyuYuibuctRmrxHA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1) 图1 ThreadPoolExecutor UML类图
 
 ThreadPoolExecutor实现的顶层接口是Executor，顶层接口Executor提供了一种思想：将任务提交和任务执行进行解耦。用户无需关注如何创建线程，如何调度线程来执行任务，用户只需提供Runnable对象，将任务的运行逻辑提交到执行器(Executor)中，由Executor框架完成线程的调配和任务的执行部分。ExecutorService接口增加了一些能力：（1）扩充执行任务的能力，补充可以为一个或一批异步任务生成Future的方法；（2）提供了管控线程池的方法，比如停止线程池的运行。
 
@@ -63,7 +63,7 @@ AbstractExecutorService则是上层的抽象类，将执行任务的流程串联
 
 ThreadPoolExecutor是如何运行，如何同时维护线程和执行任务的呢？其运行机制如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJNdb1CmKm2eCv995UKQmO4ia1IiaQ1icnN8OhLWTWQadibyFzyjteNicMicRg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图2 ThreadPoolExecutor运行流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJNdb1CmKm2eCv995UKQmO4ia1IiaQ1icnN8OhLWTWQadibyFzyjteNicMicRg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1) 图2 ThreadPoolExecutor运行流程
 
 线程池在内部实际上构建了一个生产者消费者模型，将线程和任务两者解耦，并不直接关联，从而良好的缓冲任务，复用线程。线程池的运行主要分成两部分：任务管理、线程管理。任务管理部分充当生产者的角色，当任务提交后，线程池会判断该任务后续的流转：（1）直接申请线程执行该任务；（2）缓冲到队列中等待线程执行；（3）拒绝该任务。线程管理部分是消费者，它们被统一维护在线程池内，根据任务请求进行线程的分配，当线程执行完任务后则会继续获取新的任务去执行，最终当线程获取不到任务的时候，线程就会被回收。
 
@@ -93,11 +93,11 @@ private static int ctlOf(int rs, int wc) { return rs | wc; }   //通过状态和
 
 ThreadPoolExecutor的运行状态有5种，分别为：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJwyv0eNKxfZtC4jz39dHwoMo8Rtzg6yAkBzPX4bwSvicwxYn3DnGvRYg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJwyv0eNKxfZtC4jz39dHwoMo8Rtzg6yAkBzPX4bwSvicwxYn3DnGvRYg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1) 
 
 其生命周期转换如下入所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJt7V0PMUDbbtUlUabsSfZDRB180VFyeEEapHia4SzSoTicBficy65fRibGw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图3 线程池生命周期
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJt7V0PMUDbbtUlUabsSfZDRB180VFyeEEapHia4SzSoTicBficy65fRibGw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图3 线程池生命周期
 
 **2.3 任务执行机制**
 
@@ -115,7 +115,7 @@ ThreadPoolExecutor的运行状态有5种，分别为：
 
 其执行流程如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJFKIdcrXVBJjkcibbx50ezFK0YPYrclMx6RL45OIdnGzdLvdfQZJGCmw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图4 任务调度流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJFKIdcrXVBJjkcibbx50ezFK0YPYrclMx6RL45OIdnGzdLvdfQZJGCmw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图4 任务调度流程
 
 **2.3.2 任务缓冲**
 
@@ -125,11 +125,11 @@ ThreadPoolExecutor的运行状态有5种，分别为：
 
 下图中展示了线程1往阻塞队列中添加元素，而线程2从阻塞队列中移除元素：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJkoHySytJmuqa4MeqLsCrdeyjv7KoegxsNB42s9t6dPtNLBibCpkT4rQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图5 阻塞队列
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJkoHySytJmuqa4MeqLsCrdeyjv7KoegxsNB42s9t6dPtNLBibCpkT4rQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图5 阻塞队列
 
 使用不同的队列可以实现不一样的任务存取策略。在这里，我们可以再介绍下阻塞队列的成员：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJh3iaF4q0VB67CZAGslSXRz482IyR5PA3wLuSmEXAlZMdky7l6rIa9Iw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJh3iaF4q0VB67CZAGslSXRz482IyR5PA3wLuSmEXAlZMdky7l6rIa9Iw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  
 
 **2.3.3 任务申请**
 
@@ -137,7 +137,7 @@ ThreadPoolExecutor的运行状态有5种，分别为：
 
 线程需要从任务缓存模块中不断地取任务执行，帮助线程从阻塞队列中获取任务，实现线程管理模块和任务管理模块之间的通信。这部分策略由getTask方法实现，其执行流程如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJMLk6AVVyCgNYN9RJhn4PbHVvwfvUXcp4xurQTY9LCaLXialxvo3laow/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图6 获取任务流程图
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJMLk6AVVyCgNYN9RJhn4PbHVvwfvUXcp4xurQTY9LCaLXialxvo3laow/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图6 获取任务流程图
 
 getTask这部分进行了多次判断，为的是控制线程的数量，使其符合线程池的状态。如果线程池现在不应该持有那么多线程，则会返回null值。工作线程Worker会不断接收新任务去执行，而当工作线程Worker接收不到任务的时候，就会开始被回收。
 
@@ -155,7 +155,7 @@ public interface RejectedExecutionHandler {
 
 用户可以通过实现这个接口去定制拒绝策略，也可以选择JDK提供的四种已有拒绝策略，其特点如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJKwia8IKhKPVT4TJWU95eUYKqyA9FrdgwK9huZtKOLIwQJpYVBRf64Vw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJKwia8IKhKPVT4TJWU95eUYKqyA9FrdgwK9huZtKOLIwQJpYVBRf64Vw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  
 
 **2.4 Worker线程管理**
 
@@ -174,7 +174,7 @@ Worker这个工作线程，实现了Runnable接口，并持有一个线程thread
 
 Worker执行任务的模型如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJibFaUsW5YbgOTr7GEoRPekq9NqvnGY92biaMJodpZMFmA1mZtgAKbpMA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图7 Worker执行任务
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJibFaUsW5YbgOTr7GEoRPekq9NqvnGY92biaMJodpZMFmA1mZtgAKbpMA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图7 Worker执行任务
 
 线程池需要管理线程的生命周期，需要在线程长时间不运行的时候进行回收。线程池使用一张Hash表去持有线程的引用，这样可以通过添加引用、移除引用这样的操作来控制线程的生命周期。这个时候重要的就是如何判断线程是否在运行。
 
@@ -187,13 +187,13 @@ Worker是通过继承AQS，使用AQS来实现独占锁这个功能。没有使�
 
 在线程回收过程中就使用到了这种特性，回收过程如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJXvuCKXicTcSdiaR0nDpeahiblnfrQt0zUQNtpmgC4e1RHexLPuqKOluMA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图8 线程池回收过程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJXvuCKXicTcSdiaR0nDpeahiblnfrQt0zUQNtpmgC4e1RHexLPuqKOluMA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图8 线程池回收过程
 
 **2.4.2 Worker线程增加**
 
 增加线程是通过线程池中的addWorker方法，该方法的功能就是增加一个线程，该方法不考虑线程池是在哪个阶段增加的该线程，这个分配线程的策略是在上个步骤完成的，该步骤仅仅完成增加线程，并使它运行，最后返回是否成功这个结果。addWorker方法有两个参数：firstTask、core。firstTask参数用于指定新增的线程执行的第一个任务，该参数可以为空；core参数为true表示在新增线程时会判断当前活动线程数是否少于corePoolSize，false表示新增线程前需要判断当前活动线程数是否少于maximumPoolSize，其执行流程如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJhrpJW5JvLZb3gOzPyaBr5UjicLTET0JV01bTmKpVNlkk839cSHib0QSg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图9 申请线程执行流程图
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJhrpJW5JvLZb3gOzPyaBr5UjicLTET0JV01bTmKpVNlkk839cSHib0QSg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图9 申请线程执行流程图
 
 **2.4.3 Worker线程回收**
 
@@ -211,7 +211,7 @@ try {
 
 线程回收的工作是在processWorkerExit方法完成的。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJX2hgIK0FGnBHmRYbzTS6HuXXfzkqa3YOQF85PoHMhgNiaAicfGhd0M2A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图10 线程销毁流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJX2hgIK0FGnBHmRYbzTS6HuXXfzkqa3YOQF85PoHMhgNiaAicfGhd0M2A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图10 线程销毁流程
 
 事实上，在这个方法中，将线程引用移出线程池就已经结束了线程销毁的部分。但由于引起线程销毁的可能性有很多，线程池还要判断是什么引发了这次销毁，是否要改变线程池的现阶段状态，是否要根据新状态，重新分配线程。
 
@@ -227,7 +227,7 @@ try {
 
 执行流程如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJhUxd3xXt2Qa7Rcnd8ePRfNgv8gPfdGQMlNadR0re6IsE982OpauQfg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图11 执行任务流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJhUxd3xXt2Qa7Rcnd8ePRfNgv8gPfdGQMlNadR0re6IsE982OpauQfg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图11 执行任务流程
 
 **三、线程池在业务中的实践**
 
@@ -241,7 +241,7 @@ try {
 
 **分析**：从用户体验角度看，这个结果响应的越快越好，如果一个页面半天都刷不出，用户可能就放弃查看这个商品了。而面向用户的功能聚合通常非常复杂，伴随着调用与调用之间的级联、多级级联等情况，业务开发同学往往会选择使用线程池这种简单的方式，将调用封装成任务并行的执行，缩短总体响应时间。另外，使用线程池也是有考量的，这种场景最重要的就是获取最大的响应速度去满足用户，所以应该不设置队列去缓冲并发任务，调高corePoolSize和maxPoolSize去尽可能创造多的线程快速执行任务。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJVR37XeZt6rOpYg0XJjQ1ibAc9h3MqxQm7GSqdIcbwNdyk4G5fr5rw7Q/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图12 并行执行任务提升任务响应速度
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJVR37XeZt6rOpYg0XJjQ1ibAc9h3MqxQm7GSqdIcbwNdyk4G5fr5rw7Q/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图12 并行执行任务提升任务响应速度
 
 **场景2：快速处理批量任务**
 
@@ -249,7 +249,7 @@ try {
 
 **分析**：这种场景需要执行大量的任务，我们也会希望任务执行的越快越好。这种情况下，也应该使用多线程策略，并行计算。但与响应速度优先的场景区别在于，这类场景任务量巨大，并不需要瞬时的完成，而是关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。所以应该设置队列去缓冲并发任务，调整合适的corePoolSize去设置处理任务的线程数。在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJBdJ1Hba51K9BUL3YcEBibd065xSmnFu0wriaBBglUas9j0iarrt1CYnEw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图13 并行执行任务提升批量任务执行速度
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJBdJ1Hba51K9BUL3YcEBibd065xSmnFu0wriaBBglUas9j0iarrt1CYnEw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图13 并行执行任务提升批量任务执行速度
 
 3.2 实际问题及方案思考
 
@@ -263,7 +263,7 @@ try {
 
 **事故原因**：该服务展示接口内部逻辑使用线程池做并行计算，由于没有预估好调用的流量，导致最大核心数设置偏小，大量抛出RejectedExecutionException，触发接口降级条件，示意图如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJgM7y565rWibLveaty6jrnpfHuFY9adNlQ3TTMy86ghRficWSJibDPcrkA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图14 线程数核心设置过小引发RejectExecutionException
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJgM7y565rWibLveaty6jrnpfHuFY9adNlQ3TTMy86ghRficWSJibDPcrkA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图14 线程数核心设置过小引发RejectExecutionException
 
 **Case2**：2018年XX业务服务不可用S2级故障。
 
@@ -271,7 +271,7 @@ try {
 
 **事故原因**：该服务处理请求内部逻辑使用线程池做资源隔离，由于队列设置过长，最大线程数设置失效，导致请求数量增加时，大量任务堆积在队列中，任务执行时间过长，最终导致下游服务的大量调用超时失败。示意图如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJG6oRuDpzYnZ85eXCuzhIBBxVmBMINWYzdAPwVasnQialPgKkKBYxFfg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图15 线程池队列长度设置过长、corePoolSize设置过小导致任务执行速度低
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJG6oRuDpzYnZ85eXCuzhIBBxVmBMINWYzdAPwVasnQialPgKkKBYxFfg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图15 线程池队列长度设置过长、corePoolSize设置过小导致任务执行速度低
 
 业务中要使用线程池，而使用不当又会导致故障，那么我们怎样才能更好地使用线程池呢？针对这个问题，我们下面延展几个方向：
 
@@ -279,7 +279,7 @@ try {
 
 回到最初的问题，业务使用线程池是为了获取并发性，对于获取并发性，是否可以有什么其他的方案呢替代？我们尝试进行了一些其他方案的调研：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJDxHpMS4iaPIX9a7BQY3sl9KEicK6pwqxm2qOvaibD3Ns58pMetDoWddkg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJDxHpMS4iaPIX9a7BQY3sl9KEicK6pwqxm2qOvaibD3Ns58pMetDoWddkg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  
 
 综合考虑，这些新的方案都能在某种情况下提升并行任务的性能，然而本次重点解决的问题是如何更简易、更安全地获得的并发性。另外，Actor模型的应用实际上甚少，只在Scala中使用广泛，协程框架在Java中维护的也不成熟。这三者现阶段都不是足够的易用，也并不能解决业务上现阶段的问题。
 
@@ -289,7 +289,7 @@ try {
 
 带着这样的疑问，我们调研了业界的一些线程池参数配置方案：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJ5tCAkRAEGdpSB9B9TbYWsgmq1A29bPund5YIQY203rEagERZuuQIbg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJ5tCAkRAEGdpSB9B9TbYWsgmq1A29bPund5YIQY203rEagERZuuQIbg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  
 
 调研了以上业界方案后，我们并没有得出通用的线程池计算方式。并发任务的执行情况和任务类型相关，IO密集型和CPU密集型的任务运行起来的情况差异非常大，但这种占比是较难合理预估的，这导致很难有一个简单有效的通用公式帮我们直接计算出结果。
 
@@ -297,7 +297,7 @@ try {
 
 尽管经过谨慎的评估，仍然不能够保证一次计算出来合适的参数，那么我们是否可以将修改线程池参数的成本降下来，这样至少可以发生故障的时候可以快速调整从而缩短故障恢复的时间呢？基于这个思考，我们是否可以将线程池的参数从代码中迁移到分布式配置中心上，实现线程池参数可动态配置和即时生效，线程池参数动态化前后的参数修改流程对比如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJcHdx9gqpiaOAPK6mRI54hxUCSRNiaYEQQY0veoqZOHtKrKib1zQeuQLEw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图16 动态修改线程池参数新旧流程对比
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJcHdx9gqpiaOAPK6mRI54hxUCSRNiaYEQQY0veoqZOHtKrKib1zQeuQLEw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图16 动态修改线程池参数新旧流程对比
 
 基于以上三个方向对比，我们可以看出参数动态化方向简单有效。
 
@@ -311,7 +311,7 @@ try {
 2. **参数可动态修改**：为了解决参数不好配，修改参数成本高等问题。在Java线程池留有高扩展性的基础上，封装线程池，允许线程池监听同步外部的消息，根据消息进行修改配置。将线程池的配置放置在平台侧，允许开发同学简单的查看、修改线程池配置。
 3. **增加线程池监控**：对某事物缺乏状态的观测，就对其改进无从下手。在线程池执行任务的生命周期添加监控能力，帮助开发同学了解线程池状态。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJ1jEJyoJz06dUUKZZPUTIxhiaAz4brCvyrDs8NzKALN8GXEDh3ITps4g/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图17 动态化线程池整体设计
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJ1jEJyoJz06dUUKZZPUTIxhiaAz4brCvyrDs8NzKALN8GXEDh3ITps4g/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图17 动态化线程池整体设计
 
 **3.3.2 功能架构**
 
@@ -324,21 +324,21 @@ try {
 - **操作日志**：可以查看线程池参数的修改记录，谁在什么时候修改了线程池参数、修改前的参数值是什么。
 - **权限校验**：只有应用开发负责人才能够修改应用的线程池参数。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJoKCZnITHPDfjHibzicN7wZW4lxgdZK6OP8oht15jichjl9N8rF3lKCAjA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图18 动态化线程池功能架构
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJoKCZnITHPDfjHibzicN7wZW4lxgdZK6OP8oht15jichjl9N8rF3lKCAjA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图18 动态化线程池功能架构
 
 **参数动态化**
 
 JDK原生线程池ThreadPoolExecutor提供了如下几个public的setter方法，如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJ9359Lqbqaqicvj0TXRpYT5TD26dSfbcxRibrYibvBSAVTvxThW5n4FiczQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图19 JDK 线程池参数设置接口
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJ9359Lqbqaqicvj0TXRpYT5TD26dSfbcxRibrYibvBSAVTvxThW5n4FiczQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图19 JDK 线程池参数设置接口
 
 JDK允许线程池使用方通过ThreadPoolExecutor的实例来动态设置线程池的核心策略，以setCorePoolSize为方法例，在运行期线程池使用方调用此方法设置corePoolSize之后，线程池会直接覆盖原来的corePoolSize值，并且基于当前值和原始值的比较结果采取不同的处理策略。对于当前值小于当前工作线程数的情况，说明有多余的worker线程，此时会向当前idle的worker线程发起中断请求以实现回收，多余的worker在下次idle的时候也会被回收；对于当前值大于原始值且当前队列中有待执行任务，则线程池会创建新的worker线程来执行队列任务，setCorePoolSize具体流程如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsWU8ichNbRkrlE7HYtfJlF1S7eOv2srPbK0AgJp2P8421oVFQ2bYkicjdiac3hIkF3OBAic4E0KW8XDAg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图20 setCorePoolSize方法执行流程
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsWU8ichNbRkrlE7HYtfJlF1S7eOv2srPbK0AgJp2P8421oVFQ2bYkicjdiac3hIkF3OBAic4E0KW8XDAg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图20 setCorePoolSize方法执行流程
 
 线程池内部会处理好当前状态做到平滑修改，其他几个方法限于篇幅，这里不一一介绍。重点是基于这几个public方法，我们只需要维护ThreadPoolExecutor的实例，并且在需要修改的时候拿到实例修改其参数即可。基于以上的思路，我们实现了线程池参数的动态化、线程池参数在管理平台可配置可修改，其效果图如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJUJIQUyL1fQffNqelVjHFdXvomX2o7em6FIJbXMeYINl4FQEh3Picblw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图21 可动态修改线程池参数
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJUJIQUyL1fQffNqelVjHFdXvomX2o7em6FIJbXMeYINl4FQEh3Picblw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图21 可动态修改线程池参数
 
 用户可以在管理平台上通过线程池的名字找到指定的线程池，然后对其参数进行修改，保存后会实时生效。目前支持的动态参数包括核心数、最大值、队列长度等。除此之外，在界面中，我们还能看到用户可以配置是否开启告警、队列等待任务告警阈值、活跃度告警等等。关于监控和告警，我们下面一节会对齐进行介绍。
 
@@ -354,23 +354,23 @@ JDK允许线程池使用方通过ThreadPoolExecutor的实例来动态设置线�
 
 事中，也可以从两方面来看线程池的过载判定条件，一个是发生了Reject异常，一个是队列中有等待任务（支持定制阈值）。以上两种情况发生了都会触发告警，告警信息会通过大象推送给服务所关联的负责人。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJBnXFmAkXFZl6tUueQJBUuXEkMR8hJNUx7ou99icjJETb7JflIuOyYOw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图22 大象告警通知
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJBnXFmAkXFZl6tUueQJBUuXEkMR8hJNUx7ou99icjJETb7JflIuOyYOw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图22 大象告警通知
 
 **2. 任务级精细化监控**
 
 在传统的线程池应用场景中，线程池中的任务执行情况对于用户来说是透明的。比如在一个具体的业务场景中，业务开发申请了一个线程池同时用于执行两种任务，一个是发消息任务、一个是发短信任务，这两类任务实际执行的频率和时长对于用户来说没有一个直观的感受，很可能这两类任务不适合共享一个线程池，但是由于用户无法感知，因此也无从优化。动态化线程池内部实现了任务级别的埋点，且允许为不同的业务任务指定具有业务含义的名称，线程池内部基于这个名称做Transaction打点，基于这个功能，用户可以看到线程池内部任务级别的执行情况，且区分业务，任务监控示意图如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJhyfAEvpjyVuQwqkH4ohWZE9EOeMPJttov8ysrlvIzicMI7KsNtOWXyg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图23 线程池任务执行监控
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJhyfAEvpjyVuQwqkH4ohWZE9EOeMPJttov8ysrlvIzicMI7KsNtOWXyg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图23 线程池任务执行监控
 
 **3. 运行时状态实时查看**
 
 用户基于JDK原生线程池ThreadPoolExecutor提供的几个public的getter方法，可以读取到当前线程池的运行状态以及参数，如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJkbDGTOxFp36Us4CDDbyG0PDXkQz0N5cHonnYQNDYfvBWWPlRmQ8Ang/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图24 线程池实时运行情况
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJkbDGTOxFp36Us4CDDbyG0PDXkQz0N5cHonnYQNDYfvBWWPlRmQ8Ang/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图24 线程池实时运行情况
 
 动态化线程池基于这几个接口封装了运行时状态实时查看的功能，用户基于这个功能可以了解线程池的实时状态，比如当前有多少个工作线程，执行了多少个任务，队列中等待的任务数等等。效果如下图所示：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJwB3ZsjpbmicoK75cIMlbwtDDxgvQokXZjpADINBmnUzUoRF9o9cKlyw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)图25 线程池实时运行情况
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJwB3ZsjpbmicoK75cIMlbwtDDxgvQokXZjpADINBmnUzUoRF9o9cKlyw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1) 图25 线程池实时运行情况
 
 **3.4 实践总结**
 
