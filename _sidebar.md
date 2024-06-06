@@ -22,6 +22,8 @@
 
 - 工具  
 
+- 其他
+  - [个人网站](/docs/other/person_website/readme.md)
 -----------------------------------
 
 - [参考](reference-resources.md)
