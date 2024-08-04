@@ -22,9 +22,12 @@ cloudflare warp无法使用 最新解决方法
 ![img.png](../../../media/pictures/vvv/v2rayNG/img3.png)
 
 ![img.png](../../../media/pictures/vvv/v2rayNG/img4.png)
+>> 此处域名为 cloudflare > Deployments > Domains   多加一个点
+
 
 ![img.png](../../../media/pictures/vvv/v2rayNG/img5.png)
 
 ![img.png](../../../media/pictures/vvv/v2rayNG/img6.png)
 > 将v2ray default ip复制到v2rayNG
+
 ![img.png](../../../media/pictures/vvv/v2rayNG/img7.png)

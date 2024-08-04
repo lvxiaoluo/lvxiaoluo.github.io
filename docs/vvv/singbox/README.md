@@ -3,6 +3,7 @@
 没有邮箱注册多个cf账号可以使用临时邮箱进行注册和验证。
 
 [临时邮箱1](https://email10min.com/zh)
+
 [临时邮箱2](https://www.linshiyouxiang.net/)
 ###2. worker部署代码：（任意一个代码都可部署）
 [单代理proxyIP](/docs/vvv/singbox/cloudflare_worker_js/one-ip-worker-vless.js)
