@@ -35,8 +35,8 @@
 
 ### [凤凰架构](https://icyfenix.cn/introduction/about-the-fenix-project.html)
 
-### [PassJava](https://passjava.cn/)
+### [PassJava](http://www.passjava.cn/#/)
 
 ### [HollisChuang's Blog-Java 干货集散地](https://www.hollischuang.com/)	
-
+****
 ### [awesome-tech-papers / 后端资料整理.md](https://github.com/hiddenzzh/awesome-tech-papers/blob/master/%E5%90%8E%E7%AB%AF%E8%B5%84%E6%96%99%E6%95%B4%E7%90%86.md)
