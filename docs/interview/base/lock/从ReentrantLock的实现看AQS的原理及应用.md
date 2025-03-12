@@ -1045,6 +1045,7 @@ public class LeeMain {
 
 我们日常开发中使用并发的场景太多，但是对并发内部的基本框架原理了解的人却不多。由于篇幅原因，本文仅介绍了可重入锁ReentrantLock的原理和AQS原理，希望能够成为大家了解AQS和ReentrantLock等同步器的“敲门砖”。
 
+[原文地址](https://tech.meituan.com/2019/12/05/aqs-theory-and-apply.html)
 ## **参考资料**
 
 - Lea D. The java. util. concurrent synchronizer framework[J]. Science of Computer Programming, 2005, 58(3): 293-309.
