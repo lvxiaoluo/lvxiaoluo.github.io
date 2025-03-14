@@ -14,7 +14,7 @@
 
 - as-if-serial规则和happens-before规则的区别？
 
-- voliatile的实现原理？
+- volatile的实现原理？
 
 - - volatile实现内存可见性原理
   - volatile实现有序性原理
@@ -141,7 +141,7 @@ class ReorderExample{
 
 相同点：happens-before和as-if-serial的作用都是在不改变程序执行结果的前提下，提高程序执行的并行度。
 
-## voliatile的实现原理？
+## volatile的实现原理？
 
 > 前面已经讲述`volatile`具备可见性和有序性两大特性，所以`volatile`的实现原理也是围绕如何实现可见性和有序性展开的。
 
