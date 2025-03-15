@@ -263,7 +263,9 @@ try {
 
 **事故原因**：该服务展示接口内部逻辑使用线程池做并行计算，由于没有预估好调用的流量，导致最大核心数设置偏小，大量抛出RejectedExecutionException，触发接口降级条件，示意图如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJgM7y565rWibLveaty6jrnpfHuFY9adNlQ3TTMy86ghRficWSJibDPcrkA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  图14 线程数核心设置过小引发RejectExecutionException
+![图片](https://mmbiz.qpic.cn/mmbiz_png/hEx03cFgUsXAj6OrUTUDRoG5tCBgm4CJgM7y565rWibLveaty6jrnpfHuFY9adNlQ3TTMy86ghRficWSJibDPcrkA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)  
+
+图14 线程数核心设置过小引发RejectExecutionException
 
 **Case2**：2018年XX业务服务不可用S2级故障。
 
@@ -391,3 +393,5 @@ JDK允许线程池使用方通过ThreadPoolExecutor的实例来动态设置线�
 [5] [深入理解Java线程池：ThreadPoolExecutor](http://www.ideabuffer.cn/2017/04/04/深入理解Java线程池：ThreadPoolExecutor/)
 
 [6]《Java并发编程实践》
+
+[原文地址](https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html)
