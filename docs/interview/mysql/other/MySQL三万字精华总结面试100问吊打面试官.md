@@ -3,7 +3,6 @@
 
 
 ![图片](https://mmbiz.qpic.cn/mmbiz_png/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrM1dLia006cQRb0ngOjmpV4kglmGpQTJ2wBMJTQMR8xVMnzGCD8fjYtIg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
-
 > ❝
 >
 > 写在之前：不建议那种上来就是各种面试题罗列，然后背书式的去记忆，对技术的提升帮助很小，对正经面试也没什么帮助，有点东西的面试官深挖下就懵逼了。
@@ -14,7 +13,7 @@
 
 和其它数据库相比，MySQL有点与众不同，它的架构可以在多种不同场景中应用并发挥良好作用。主要体现在存储引擎的架构上，**插件式的存储引擎架构将查询处理和其它的系统任务以及数据的存储提取相分离**。这种架构可以根据业务的需求和实际需要选择合适的存储引擎。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMT0CYxHfpHtlPoUYpqT8fo5vSJLfT93icHe0ZBhU5BI1pFnZeIGIhmYA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![](../../../images/interview/mysql/other/mysql_1.png)
 
 - **连接层**：最上层是一些客户端和连接服务。**主要完成一些类似于连接处理、授权认证、及相关的安全方案**。在该层上引入了线程池的概念，为通过认证安全接入的客户端提供线程。同样在该层上可以实现基于SSL的安全链接。服务器也会为安全接入的每个客户端验证它所具有的操作权限。
 - **服务层**：第二层服务层，主要完成大部分的核心服务功能， 包括查询解析、分析、优化、缓存、以及所有的内置函数，所有跨存储引擎的功能也都在这一层实现，包括触发器、存储过程、视图等
@@ -29,7 +28,7 @@
 
 客户端请求 ---> 连接器（验证用户身份，给予权限）  ---> 查询缓存（存在缓存则直接返回，不存在则执行后续操作） ---> 分析器（对SQL进行词法分析和语法分析操作）  ---> 优化器（主要对执行的sql优化选择最优的执行方案方法）  ---> 执行器（执行时会先看用户是否有执行权限，有才去使用这个引擎提供的接口） ---> 去引擎层获取数据返回（如果开启查询缓存则会缓存查询结果）图：极客时间
 
-![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMYoDeKIasnc7Ya1xaTHmZgQSNiaScK80VibXad12PUCyGGbaVTX7OD0hw/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)
+![](../../../images/interview/mysql/other/mysql_2.png)
 
 ------
 
@@ -156,11 +155,11 @@ InnoDB 中 count(*) 语句是在执行的时候，全表扫描统计总数量，
 - 日期类型：Date、DateTime、TimeStamp、Time、Year
 - 其他数据类型：BINARY、VARBINARY、ENUM、SET、Geometry、Point、MultiPoint、LineString、MultiLineString、Polygon、GeometryCollection等
 
-![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMkYUwZENTpJBfx02dXzpicn0B0ozv2ibKoWo6YQoQ9oPKjx9hzJxAo69w/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)
+![](../../../images/interview/mysql/other/mysql_3.png)
 
-![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMTnDbzLIClYjmagLicRbJZ7qOo7Jl04RwgOn9poUBu6NgtEJdWNt5M3g/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)
+![](../../../images/interview/mysql/other/mysql_4.png)
 
-![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMgpyBWKmUJoia7VScb9ElVCzed6M11yV12ljaszuO4OaVzFrCibD9UK2Q/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)
+![](../../../images/interview/mysql/other/mysql_5.png)
 
 > ❝
 >
@@ -221,7 +220,9 @@ BLOB 保存二进制数据，TEXT 保存字符数据。
 
 - MYSQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取数据的数据结构，所以说**索引的本质是：数据结构**
 - 索引的目的在于提高查询效率，可以类比字典、 火车站的车次表、图书的目录等 。
-- 可以简单的理解为“排好序的快速查找数据结构”，数据本身之外，**数据库还维护者一个满足特定查找算法的数据结构**，这些数据结构以某种方式引用（指向）数据，这样就可以在这些数据结构上实现高级查找算法。这种数据结构，就是索引。下图是一种可能的索引方式示例。![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrM9icosAtADjf2tJYCKkuG12XVCgOCqqjZKwXIv1JYibtg3gD0SZORELcA/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)左边的数据表，一共有两列七条记录，最左边的是数据记录的物理地址。为了加快Col2的查找，可以维护一个右边所示的二叉查找树，每个节点分别包含索引键值，和一个指向对应数据记录物理地址的指针，这样就可以运用二叉查找在一定的复杂度内获取到对应的数据，从而快速检索出符合条件的记录。
+- 可以简单的理解为“排好序的快速查找数据结构”，数据本身之外，**数据库还维护者一个满足特定查找算法的数据结构**，这些数据结构以某种方式引用（指向）数据，这样就可以在这些数据结构上实现高级查找算法。这种数据结构，就是索引。下图是一种可能的索引方式示例。
+![](../../../images/interview/mysql/other/mysql_6.png)
+- 左边的数据表，一共有两列七条记录，最左边的是数据记录的物理地址。为了加快Col2的查找，可以维护一个右边所示的二叉查找树，每个节点分别包含索引键值，和一个指向对应数据记录物理地址的指针，这样就可以运用二叉查找在一定的复杂度内获取到对应的数据，从而快速检索出符合条件的记录。
 - 索引本身也很大，不可能全部存储在内存中，**一般以索引文件的形式存储在磁盘上**
 - 平常说的索引，没有特别指明的话，就是B+树（多路搜索树，不一定是二叉树）结构组织的索引。其中聚集索引，次要索引，覆盖索引，符合索引，前缀索引，唯一索引默认都是使用B+树索引，统称索引。此外还有哈希索引等。
 
@@ -324,7 +325,7 @@ B-Tree 结构的数据可以让系统高效的找到数据所在的磁盘块。�
 
 B-Tree 中的每个节点根据实际情况可以包含大量的关键字信息和分支，如下图所示为一个 3 阶的 B-Tree：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMyEzKjGsDVMdHDCHfibk7J2vc7hrMib3j08IxSShb6L4ZbSLAdjrhsFgQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)图片：DobbinSoong
+![](../../../images/interview/mysql/other/mysql_7.png)
 
 每个节点占用一个盘块的磁盘空间，一个节点上有两个升序排序的关键字和三个指向子树根节点的指针，指针存储的是子节点所在磁盘块的地址。两个关键词划分成的三个范围域对应三个指针指向的子树的数据的范围域。以根节点为例，关键字为17和35，P1指针指向的子树的数据范围为小于17，P2指针指向的子树的数据范围为17~35，P3指针指向的子树的数据范围为大于35。
 
@@ -351,8 +352,8 @@ B+Tree相对于B-Tree有几点不同：
 2. 所有叶子节点之间都有一个链指针；
 3. 数据记录都存放在叶子节点中
 
-将上一节中的B-Tree优化，由于B+Tree的非叶子节点只存储键值信息，假设每个磁盘块能存储4个键值及指针信息，则变成B+Tree后其结构如下图所示：![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMYDgyYTt1EfvIXpttEATqBx05tkU3l6abjNiam1Q3AXnkkAntmDXC3ZA/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)
-
+将上一节中的B-Tree优化，由于B+Tree的非叶子节点只存储键值信息，假设每个磁盘块能存储4个键值及指针信息，则变成B+Tree后其结构如下图所示：
+![](../../../images/interview/mysql/other/mysql_8.png)
 通常在B+Tree上有两个头指针，一个指向根节点，另一个指向关键字最小的叶子节点，而且所有叶子节点（即数据节点）之间是一种链式环结构。因此可以对B+Tree进行两种查找运算：一种是对于主键的范围查找和分页查找，另一种是从根节点开始，进行随机查找。
 
 可能上面例子中只有22条数据记录，看不出B+Tree的优点，下面做一个推算：
@@ -370,7 +371,7 @@ B+Tree性质
 
 MyISAM引擎的索引文件和数据文件是分离的。**MyISAM引擎索引结构的叶子节点的数据域，存放的并不是实际的数据记录，而是数据记录的地址**。索引文件与数据文件分离，这样的索引称为"非聚簇索引"。MyISAM的主索引与辅助索引区别并不大，只是主键索引不能有重复的关键字。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrM4fE49j2fvib0ibniaCULyE59yMHm9yHDp4Nic463Ou0UktXOPwtgcen5jQ/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)
+![](../../../images/interview/mysql/other/mysql_9.png)
 
 在MyISAM中，索引（含叶子节点）存放在单独的.myi文件中，叶子节点存放的是数据的物理地址偏移量（通过偏移量访问就是随机访问，速度很快）。
 
@@ -385,8 +386,7 @@ MyISAM引擎的索引文件和数据文件是分离的。**MyISAM引擎索引结
 ###### 主键索引：
 
 我们知道InnoDB索引是聚集索引，它的索引和数据是存入同一个.idb文件中的，因此它的索引结构是在同一个树节点中同时存放索引和数据，如下图中最底层的叶子节点有三行数据，对应于数据表中的id、stu_id、name数据项。
-
-![图片](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
+![](../../../images/interview/mysql/other/mysql_10.png)
 
 在Innodb中，索引分叶子节点和非叶子节点，非叶子节点就像新华字典的目录，单独存放在索引段中，叶子节点则是顺序排列的，在数据段中。Innodb的数据文件可以按照表来切分（只需要开启`innodb_file_per_table)`，切分后存放在`xxx.ibd`中，默认不切分，存放在`xxx.ibdata`中。
 
@@ -401,8 +401,7 @@ MyISAM引擎的索引文件和数据文件是分离的。**MyISAM引擎索引结
 ② 使用主键在主索引上再进行对应的检索操作
 
 这也就是所谓的“**回表查询**”
-
-![图片](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
+![](../../../images/interview/mysql/other/mysql_11.png)
 
 **InnoDB 索引结构需要注意的点**
 
@@ -566,7 +565,7 @@ UNION和UNION ALL都是将两个结果集合并为一个，**两个要联合的S
 
 - 总结
 
-![图片](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
+![](../../../images/interview/mysql/other/mysql_13.png)
 
 > ❝
 >
@@ -575,8 +574,8 @@ UNION和UNION ALL都是将两个结果集合并为一个，**两个要联合的S
 > 什么是内连接、外连接、交叉连接、笛卡尔积呢？
 
 ### Join图
+![](../../../images/interview/mysql/other/mysql_14.png)
 
-![图片](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
 
 ------
 
@@ -803,7 +802,7 @@ MySQL 从 5.0.3  InnoDB 存储引擎开始支持XA协议的分布式事务。一
 
 在MySQL中，使用分布式事务涉及一个或多个资源管理器和一个事务管理器。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMBId9ibW8If2R2kqeGIxhic7FCoaaem5zNDeqIr0mhmbJwcqTaGm7HCibw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![](../../../images/interview/mysql/other/mysql_16.png)
 
 如图，MySQL 的分布式事务模型。模型中分三块：应用程序（AP）、资源管理器（RM）、事务管理器（TM）:
 
@@ -1106,8 +1105,8 @@ Shell> mysqladmin extended-status -u username -p password——显示状态信�
 
 - Explain + SQL语句
 - 执行计划包含的信息（如果有分区表的话还会有**partitions**）
+  ![](../../../images/interview/mysql/other/mysql_17.jpeg)
 
-![图片](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)expalin
 
 各字段解释
 
@@ -1147,7 +1146,8 @@ Shell> mysqladmin extended-status -u username -p password——显示状态信�
 - - 实际使用的索引，如果为NULL，则没有使用索引
   - **查询中若使用了覆盖索引，则该索引和查询的 select 字段重叠，仅出现在key列表中**
 
-![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMx0HUF0X8njABOzib4a9Ymjk0pkHKOJUPRP4s70s0F4hID6mbdfULmcw/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)explain-key
+![](../../../images/interview/mysql/other/mysql_18.jpeg)
+explain-key
 
 - **key_len**
 
@@ -1171,7 +1171,8 @@ Shell> mysqladmin extended-status -u username -p password——显示状态信�
 
 **case**:
 
-![图片](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)explain-demo
+![](../../../images/interview/mysql/other/mysql_19.jpeg)
+explain-demo
 
 1. 第一行（执行顺序4）：id列为1，表示是union里的第一个select，select_type列的primary表示该查询为外层查询，table列被标记为，表示查询结果来自一个衍生表，其中derived3中3代表该查询衍生自第三个select查询，即id为3的select。【select d1.name......】
 2. 第二行（执行顺序2）：id为3，是整个查询中第三个select的一部分。因查询包含在from中，所以为derived。【select id,name from t1 where other_column=''】
@@ -1465,7 +1466,7 @@ MySQL 支持的数据类型非常多，选择正确的数据类型对于获取�
   - 按热度拆分，高点击率的词条生成各自的一张表，低热度的词条都放在一张大表里，待低热度的词条达到一定的贴数后，再把低热度的表单独拆分成一张表。
   - 根据ID的值放入对应的表，第一个表user_0000，第二个100万的用户数据放在第二 个表user_0001中，随用户增加，直接添加用户表就行了。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMXUN9KqQ8PSfS198go8wcZeYDKwysR1rbeP70EElZw3O7qghXYEcRXQ/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)
+![](../../../images/interview/mysql/other/mysql_20.jpeg)
 
 ### MySQL分库
 
@@ -1506,7 +1507,7 @@ MySQL 支持的数据类型非常多，选择正确的数据类型对于获取�
 
 - 三个步骤
 
-  ![图片](https://mmbiz.qpic.cn/mmbiz_jpg/Z0fxkgAKKLNc1rZcnHlq151m3KPG6SrMz8pW6pnxMTpRJKNWn3s8rPeic4FCJ4hzDDa995icdHm3Kibt6yyfEoQbg/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)img
+![](../../../images/interview/mysql/other/mysql_21.jpeg)
 
 - 1. master将改变记录到二进制日志（binary log）。这些记录过程叫做二进制日志事件，binary log events；
   2. salve 将 master 的 binary log events 拷贝到它的中继日志（relay log）;

@@ -16,7 +16,7 @@
 
 先给大家看一下完整的bean生命周期，不懂没关系后面会讲。
 
-![img](http://s5.51cto.com/oss/202203/14/196ac7a21a805f06b06244a954082cd5f99c54.jpg)
+!![img](https://i-blog.csdnimg.cn/blog_migrate/57ef56df9f161f5ad0100ce7e8637dfe.png)
 
 ### 什么是Bean的生命周期
 
@@ -38,7 +38,7 @@ Bean的生命周期是怎样的在Spring中，Bean的创建过程看起来复杂
 
 开始时，我们只有两个流程：对象的实例化和属性填充。
 
-![img](http://s8.51cto.com/oss/202203/14/a1a5c9462041926a7740484d0cb11ab0889d52.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/d18f9f4366cecb46782b14a6ff37dec6.png)
 
 我们知道，对象的实例化就是在Java里使用类构造器进行创建对象。而一个类中可能有很多的构造器，那么我们怎么才能知道使用哪个构造器进行实例化对象呢?
 
@@ -64,11 +64,11 @@ Bean的生命周期是怎样的在Spring中，Bean的创建过程看起来复杂
 
 流程图：
 
-![img](http://s5.51cto.com/oss/202203/14/98e5314144aa54826f6865cc6523bd91224965.gif)![img](http://s2.51cto.com/oss/202203/14/94d1a3442a1436fba804020bfe7f3cdde17ac3.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/fca7e174d70caa06329651ef301f8130.png)
 
 当构造器遍历完毕之后，还有些许逻辑。
 
-![img](http://s4.51cto.com/oss/202203/14/79a25a19476cfcd1f581762f445ec63011aa95.gif)![img](http://s7.51cto.com/oss/202203/14/699050076c806a7e6ef6253b792e3c8e3879b4.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/93b70853fe56e55c4e1782ed8bdd17e7.png)
 
 以上判断条件很多，但始终是围绕这一个逻辑：这个beanClass中有没有被Autowired标识的构造器，有的话required是true还是false，如果是true, 那其他的构造器都不要了。如果是false，那想加多少个构造器就加多少个。
 
@@ -86,7 +86,7 @@ Spring表示那我也不知道用哪个呀，同样进入兜底策略：使用�
 
 那么这就是构造器推断流程了，我们将它加入到流程图中。
 
-![img](http://s8.51cto.com/oss/202203/14/180b0a98917d73685ee611c548dfe9d461834b.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/89ccbe437089e5841f64a8318bfe021c.png)
 
 在得到候选的构造器之后，就可以对对象进行实例化了，那么实例化的过程是怎样的呢?
 
@@ -113,7 +113,7 @@ Spring表示那我也不知道用哪个呀，同样进入兜底策略：使用�
 
 2、修饰符相同的情况下参数数量更多的优先。
 
-![img](http://s7.51cto.com/oss/202203/14/82fe52e56fd6f25b71e988cef94372862e6f89.gif)![img](http://s6.51cto.com/oss/202203/14/15c202a3062de21d11d171fbdd2b3f35a56423.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/f9f75c993e3ca32ae5d4e9ffdc6edd74.png)
 
 这段流程很简单，代码只有两行：
 
@@ -166,7 +166,7 @@ public class InstanceA {
 
 5、使用有效构造器进行实例化。
 
-![img](http://s4.51cto.com/oss/202203/14/278f90855f7d6a5d62097372111264b2b21af9.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/93f83ba8d4520e950fa7f64fc6adb898.png)
 
 ### 推导过程
 
@@ -198,15 +198,15 @@ public class InstanceA {
 
 5、如果没被解析过就将该Member放置到已检查的元素集合中，用于后续填充属性时从这里直接拿到所有要注入的Member。
 
-![img](http://s8.51cto.com/oss/202203/14/66ad46a5485cf3ace3132356571270f64a01e6.gif)![img](http://s5.51cto.com/oss/202203/14/76424348570fe4bf59d770dd79f6c7b74aac53.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/0e94f91875017ee5dfef35fa0bab6586.png)
 
 其中，AutowiredAnnotationBeanPostProcessor和InjectionMetadata的结构如下：
 
-![img](http://s3.51cto.com/oss/202203/14/08bd2e6356c8ba825b1154f75cff7871e5ec6d.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/565f867b776e8b663e1ff0af8bb5e0cd.png)
 
 同样，我们将这一部分流程也加入到流程图中。
 
-![img](http://s9.51cto.com/oss/202203/14/858b13f399f07b64a437110b9669580a3a0a08.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/185b1f9c2d1b3a2736471a6f8643be2e.png)
 
 现在，beanClass中的可注入属性都找出来了，接下来就真的要进行属性填充了。
 
@@ -232,7 +232,7 @@ public class InstanceA {
 
 4、使用反射将获取到的Bean设值到属性中。
 
-![img](http://s2.51cto.com/oss/202203/14/961b20f16ad910ab89f82885fd3f4d5c7bbd86.gif)![img](http://s9.51cto.com/oss/202203/14/81d284b75e72b5eda57094f252a445c42a8f72.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/718ba75b6a1788d6eb60e9df042761ee.png)
 
 ### 推导过程
 
@@ -293,7 +293,7 @@ private void invokeAwareMethods(String beanName, Object bean) {
 
 3、使用反射进行调用。
 
-![img](http://s3.51cto.com/oss/202203/14/b7fab229187f6cad5f5497666576aacd85377a.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/3a4a6950e9af8ee5be98b970c4124095.png)
 
 #### 二、ApplicationContextAwareProcessor
 
@@ -340,7 +340,7 @@ private void invokeAwareMethods(String beanName, Object bean) {
 
 4、是则找到对应的initMethod，通过反射进行调用。
 
-![img](http://s2.51cto.com/oss/202203/14/e54c4c1183eaa335df455941946790f4c8251e.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/6129f03e9aaac14f28150fd64c3d4615.png)
 
 ### 初始化后的处理
 
@@ -358,7 +358,7 @@ ApplicationListenerDetector的流程如下：
 
 到这里，Bean的生命周期主要部分已经介绍完了，我们将流程图补充一下。
 
-![img](http://s9.51cto.com/oss/202203/14/e11a82525d9a14eefa1032c178c48bb6b36a53.gif)![img](http://s8.51cto.com/oss/202203/14/4138170097794fa4fb32296cb22a86ca1a986f.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/df6c076a5dafc6538aa5407f9c59dd19.png)
 
 同样还有其他的一些逻辑。
 
@@ -409,7 +409,7 @@ public class InterruptBeanPostProcessor implements InstantiationAwareBeanPostPro
 
 测试结果如下:
 
-![img](http://s7.51cto.com/oss/202203/14/b93de1a43f1b1501f432682b0308b97260b18e.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/d6f75763e53c71aec9b2abdfb282d2aa.png)
 
 #### 二、提前缓存刚实例化的对象
 
@@ -446,5 +446,5 @@ Spring中不仅有@PostContrust、afterProperties、initMethod这些bean创建�
 
 完整流程图最后，附上开头的Bean生命周期的完整流程图，是不是就清晰了很多?
 
-![img](http://s5.51cto.com/oss/202203/14/f444db246bb701e5e433188781c126c4c3e561.jpg)
+![img](https://i-blog.csdnimg.cn/blog_migrate/cb21ab28513211f2257ae4faee647cb2.png)
 
