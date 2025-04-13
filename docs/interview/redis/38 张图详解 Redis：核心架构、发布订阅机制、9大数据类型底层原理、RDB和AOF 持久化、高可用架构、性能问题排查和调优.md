@@ -1075,3 +1075,7 @@ Bigkey 的存在可能会引发以下问题。
 - **优化数据结构：** 根据实际业务需求，优化使用的数据结构，例如使用 HyperLogLog 替代 Set。
 - **清理不必要的数据：** Redis 自 4.0 起提供了 `UNLINK` 命令，该命令能够以非阻塞的方式缓慢逐步的清理传入的 Key，通过 `UNLINK`，你可以安全的删除大 Key 甚至特大 Key。
 - **对大 key 拆分：**如将一个含有数万成员的 HASH Key 拆分为多个 HASH Key，并确保每个 Key 的成员数量在合理范围，在 Redis Cluster 集群中，大 Key 的拆分对 node 间的内存平衡能够起到显著作用。
+
+
+
+[原文地址](https://mp.weixin.qq.com/s/JNM7YoXVuPJHnp2AKXAPtw)

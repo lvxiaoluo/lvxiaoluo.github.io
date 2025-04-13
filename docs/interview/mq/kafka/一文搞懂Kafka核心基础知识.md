@@ -111,7 +111,7 @@ Kafka 中的 topic 通常都会被多个消费者订阅， 因此出于性能的
 
 **「kafka为什么要设计分区？」**
 
-解决伸缩性的问题。假如一个broker积累了太 多的数据以至于单台 Broker 机器都无法容纳了，此时应该怎么办呢？一个很自然的想法就 是，能否把数据分割成多份保存在不同的 Broker 上？所以kafka设计了分区
+解决伸缩性的问题。假如一个broker积累了太多的数据以至于单台 Broker 机器都无法容纳了，此时应该怎么办呢？一个很自然的想法就 是，能否把数据分割成多份保存在不同的 Broker 上？所以kafka设计了分区
 
 ![图片](https://mmbiz.qpic.cn/mmbiz_png/hC3oNAJqSRyXloc4TOssA4p3PiabAoWd28aJFl5BTDF7NWV57a5iaIV76RqAiaJNNAV49McXQqB7ia5bQpyLRUsLgA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
@@ -171,7 +171,7 @@ Rebalance 本质上是一种协议，规定了一个 Consumer Group 下的所有
 
 **「Consumer Group 何时进行 Rebalance 呢？ Rebalance 的触发条件有 3 个。」**
 
-1. 组成员数发生变更。比如有新的 Consumer 实例加入组 或者离开组，或是有 Consumer 实例崩溃被“踢 出”组。
+1. 组成员数发生变更。比如有新的 Consumer 实例加入组 或者离开组，或是有 Consumer 实例崩溃被“踢出”组。
 
 2. 1. 订阅主题数发生变更。Consumer Group 可以使用正则 表达式的方式订阅主题，比如`consumer.subscribe(Pattern.compile(“t.*c”))` 就表 明该 Group 订阅所有以字母 t 开头、字母 c 结尾的主 题。在 Consumer Group 的运行过程中，你新创建了一 个满足这样条件的主题，那么该 Group 就会发生 Rebalance。
 
@@ -253,7 +253,7 @@ kafka中的topic中的内容可以被分为多分partition存在,每个partition
 
 **「批量发送」**
 
-kafka允许进行批量发送消息，producter发送消息的时候，可以将消息缓存在本地,等到了固定条件发送到kafka
+kafka允许进行批量发送消息，producer发送消息的时候，可以将消息缓存在本地,等到了固定条件发送到kafka
 
 1. 等消息条数到固定条数
 2. 一段时间发送一次
@@ -292,8 +292,7 @@ public class MsgProducer {
         /*
          发出消息持久化机制参数
         （1）acks=0： 表示producer不需要等待任何broker确认收到消息的回复，就可以继续发送下一条消息。性能最高，但是最容易丢消息。
-        （2）acks=1： 至少要等待leader已经成功将数据写入本地log，但是不需要等待所有follower是否成功写入。就可以继续发送下一条消息。这种情况下，如果follower没有成功备份数据，而此时leader
-        又挂掉，则消息会丢失。
+        （2）acks=1： 至少要等待leader已经成功将数据写入本地log，但是不需要等待所有follower是否成功写入。就可以继续发送下一条消息。这种情况下，如果follower没有成功备份数据，而此时leader又挂掉，则消息会丢失。
         （3）acks=-1或all： 这意味着leader需要等待所有备份(min.insync.replicas配置的备份个数)都成功写入日志，这种策略会保证只要有一个备份存活就不会丢失数据。
          这是最强的数据保证。一般除非是金融级别，或跟钱打交道的场景才会使用这种配置。
         */
