@@ -14,15 +14,18 @@
 
 #### **-   Kafka 核心概念  -** 
 
-#### `生产者：Producer 往Kafka集群生成数据消费者：Consumer 往Kafka里面去获取数据，处理数据、消费数据Kafka的数据是由消费者自己去拉去Kafka里面的数据主题：topic分区：partition 默认一个topic有一个分区（partition），自己可设置多个分区（分区分散存储在服务器不同节点上）。`
+生产者：Producer 往Kafka集群生成数据
+消费者：Consumer 往Kafka里面去获取数据，处理数据、消费数据Kafka的数据是由消费者自己去拉去Kafka里面的数据
+主题：topic
+分区：partition 默认一个topic有一个分区（partition），自己可设置多个分区（分区分散存储在服务器不同节点上）。
 
 ####  **-   集群架构  -** 
 
- `Kafka集群中，一个kafka服务器就是一个broker Topic只是逻辑上的概念，partition在磁盘上就体现为一个目录Consumer Group：消费组 消费数据的时候，都必须指定一个group id，指定一个组的id假定程序A和程序B指定的group id号一样，那么两个程序就属于同一个消费组特殊。`
+ Kafka集群中，一个kafka服务器就是一个broker Topic只是逻辑上的概念，partition在磁盘上就体现为一个目录Consumer Group：消费组 消费数据的时候，都必须指定一个group id，指定一个组的id假定程序A和程序B指定的group id号一样，那么两个程序就属于同一个消费组特殊。
 
- `比如，有一个主题topicA程序A去消费了这个topicA，那么程序B就不能再去消费topicA（程序A和程序B属于一个消费组） 再比如程序A已经消费了topicA里面的数据，现在还是重新再次消费topicA的数据，是不可以的，但是重新指定一个group id号以后，可以消费。不同消费组之间没有影响。`
+ 比如，有一个主题topicA程序A去消费了这个topicA，那么程序B就不能再去消费topicA（程序A和程序B属于一个消费组） 再比如程序A已经消费了topicA里面的数据，现在还是重新再次消费topicA的数据，是不可以的，但是重新指定一个group id号以后，可以消费。不同消费组之间没有影响。
 
-`消费组需自定义，消费者名称程序自动生成（独一无二）。Controller：Kafka节点里面的一个主节点。`
+消费组需自定义，消费者名称程序自动生成（独一无二）。Controller：Kafka节点里面的一个主节点。
 
 
 
@@ -32,7 +35,7 @@ kafka写数据：顺序写，往磁盘上写数据时，就是追加数据，没
 
 #### **-   零拷贝数据高性能**
 
-** 消费者读取数据流程：**
+**消费者读取数据流程：**
 
 1.消费者发送请求给kafka服务；
 2.kafka服务去os cache缓存读取数据（缓存没有就去磁盘读取数据）；
