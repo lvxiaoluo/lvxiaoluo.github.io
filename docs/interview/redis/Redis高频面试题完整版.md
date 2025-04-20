@@ -160,7 +160,7 @@ Redis为什么这么快主要有以下几个原因：
 
 前面说了那么多Redis使用单线程的原因，但从Redis6.0后开始支持多线程了，简直打脸有点快。那么为什么较新的Redis版本又开始支持多线程了呢？
 
-前面也说了Redis的瓶颈在**内存和网络**，Redis6.0引入多线程主要是为了解决**网路IO**读写这个瓶颈，**执行命令还是单线程执行的**，所以也不存在线程安全问题。
+前面也说了Redis的瓶颈在**内存和网络**，Redis6.0引入多线程主要是为了解决**网路IO**读写这个瓶颈，**执行命令还是单线程执行的**，所以也不存在线程安全问题。	
 
 Redis6.0默认是否开启了多线程呢？
 
@@ -168,7 +168,7 @@ Redis6.0默认是否开启了多线程呢？
 
 ### Redis的数据类型有哪些？
 
-Redis的常见的数据类型有S**tring、Hash、Set、List、ZSet**。还有三种不那么常见的数据类型：**Bitmap、HyperLogLog、Geospatial**。
+Redis的常见的数据类型有**String、Hash、Set、List、ZSet**。还有三种不那么常见的数据类型：**Bitmap、HyperLogLog、Geospatial**。
 
 | 数据类型 | 可以存储的值                       | 可进行的操作                                                 | 应用场景                              |
 | :------- | :--------------------------------- | :----------------------------------------------------------- | :------------------------------------ |
@@ -207,7 +207,7 @@ Redis的数据结构有**简单动态字符串**、**链表**、**字典**、**�
 - 通过这五种不同类型的对象，Redis可以在执行命令之前，根据对象的类型来判断一个对象是否可以执行给定的命令。
 - 我们可以针对不同的使用场景，为对象设置多种不同的数据结构实现，从而优化对象在不同场景下的使用效率。
 - 实现了基于引用计数技术的内存回收机制，当程序不再使用某个对象的时候，这个对象所占用的内存就会被自动释放，了解Java虚拟机的垃圾回收机制看到这里是不是很熟悉。
-- edis还通过引用计数技术实现了对象共享机制，这一机制可以在适当的条件下，通过让多个数据库键共享同一个对象来节约内存。
+- redis还通过引用计数技术实现了对象共享机制，这一机制可以在适当的条件下，通过让多个数据库键共享同一个对象来节约内存。
 
 **对象**这部分占了比较大的篇幅，其实面试中问的也不多，但为了更方便理解，介绍地多些。顺便看下这些底层数据结构和对象系统的对应关系。
 
@@ -215,11 +215,11 @@ Redis的数据结构有**简单动态字符串**、**链表**、**字典**、**�
 
 最后介绍下面试中常问的跳跃表。
 
-**跳跃表（skiplist）：**跳跃表（skiplist）是一种有序数据结构，它通过在每个节点中维持多个指向其他节点的指针，从而达到快速访问节点的目的。跳跃表支持**平均O（logN）、最坏O（N）复杂度**的节点查找，还可以通过顺序性操作来批量处理节点。**跳跃表作是序集合键的底层实现之一**。
+**跳跃表（skiplist）：**跳跃表（skiplist）是一种有序数据结构，它通过在每个节点中维持多个指向其他节点的指针，从而达到快速访问节点的目的。跳跃表支持**平均O（logN）、最坏O（N）复杂度**的节点查找，还可以通过顺序性操作来批量处理节点。**跳跃表作为有序集合键的底层实现之一**。
 
-和链表、字典等数据结构被广泛地应用在Redis内部不同，Redis只在两个地方用到了跳跃表，一个是实现**有序集合键**，另一个是在**集群节****点中用作内部数据结构**，除此之外，跳跃表在Redis里面没有其他用途。
+和链表、字典等数据结构被广泛地应用在Redis内部不同，Redis只在两个地方用到了跳跃表，一个是实现**有序集合键**，另一个是在**集群节点**中用作内部数据结构，除此之外，跳跃表在Redis里面没有其他用途。
 
-跳跃表本质上采用的是一种空间换时间的策略，是一种可以可以进行**二分查找**的**有序链表**，跳表在原有的有序链表上增加了**多级索引**，通过索引来实现快速查询。跳表不仅能提高搜索性能，同时也可以提高插入和删除操作的性能。
+跳跃表本质上采用的是一种空间换时间的策略，是一种可以进行**二分查找**的**有序链表**，跳表在原有的有序链表上增加了**多级索引**，通过索引来实现快速查询。跳表不仅能提高搜索性能，同时也可以提高插入和删除操作的性能。
 
 这是一个原始的有序列表，时间复杂度为O(n)。
 
@@ -233,7 +233,7 @@ Redis的数据结构有**简单动态字符串**、**链表**、**字典**、**�
 
 ![图片](https://mmbiz.qpic.cn/mmbiz_png/cBnxLn7axrxS5Gkk0Rrtv3qYqxpnx3W5Ub5yIK9eArwKVwhASr2DiaxiaazSZpF89NHic3rwC3nBSQsib75d101cFA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
-对于理想的跳表，每向上一层索引节点数量都是下一层的1/2，跳表的**时间复杂度为o(logn)，空间复杂度为o(n)**，虽然是空间换时间的策略，这里举例存储的只是数字，如果是存储比较大的对象，浪费的空间就不值得一提了，因为索引结点只需要存储关键值和几个指针，并不需要存储对象。
+对于理想的跳表，每向上一层索引节点数量都是下一层的1/2，跳表的**时间复杂度为O(logn)，空间复杂度为(n)**，虽然是空间换时间的策略，这里举例存储的只是数字，如果是存储比较大的对象，浪费的空间就不值得一提了，因为索引结点只需要存储关键值和几个指针，并不需要存储对象。
 
 跳表相比于红黑树的优点（redis为什么用跳表不同红黑树）：
 
@@ -457,7 +457,7 @@ Redis单机版通过RDB或AOF持久化机制将数据持久化到硬盘上，但
 
 客户端分片是把分片的逻辑放在Redis客户端实现，通过Redis客户端预先定义好的路由规则(使用哈希算法)，把对Key的访问转发到不同的Redis实例中，查询数据时把返回结果汇集。如下图
 
-![图片](data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='1px' height='1px' viewBox='0 0 1 1' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3E%3C/title%3E%3Cg stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' fill-opacity='0'%3E%3Cg transform='translate(-249.000000, -126.000000)' fill='%23FFFFFF'%3E%3Crect x='249' y='126' width='1' height='1'%3E%3C/rect%3E%3C/g%3E%3C/g%3E%3C/svg%3E)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/cBnxLn7axrxS5Gkk0Rrtv3qYqxpnx3W57IpxC870Fmvziaf3LPXyHkd5IzdOwtib3VBFnldicVhXFIcnvEnTialfcg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
 客户端分片的优缺点：
 
@@ -475,7 +475,7 @@ Redis单机版通过RDB或AOF持久化机制将数据持久化到硬盘上，但
 
 为了解决这个问题，**代理分片**出现了，代理分片将客户端分片模块单独分了出来，作为Redis客户端和服务端的桥梁，如下图
 
-![图片](data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='1px' height='1px' viewBox='0 0 1 1' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3E%3C/title%3E%3Cg stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' fill-opacity='0'%3E%3Cg transform='translate(-249.000000, -126.000000)' fill='%23FFFFFF'%3E%3Crect x='249' y='126' width='1' height='1'%3E%3C/rect%3E%3C/g%3E%3C/g%3E%3C/svg%3E)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/cBnxLn7axrxS5Gkk0Rrtv3qYqxpnx3W5Yq2o1sJpgACbV5K261XffvIC7KSGqqToDLNLN9y3liaOdiabQgSVQ8Xw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
 代理模式的**优点**：解决了服务端Redis实例群拓扑结构有变化时，每个客户端都需要更新调整的问题。**缺点**是由于Redis客户端的每个请求都经过代理才能到达Redis服务器，这个过程中会产生性能损失。
 
@@ -519,7 +519,7 @@ Redis Cluster是一种服务端Sharding技术，Redis Cluster并没有使用一�
 
 虚拟槽和一致性哈希算法的实现上也很像，先通过CRC16算法计算出key的hash值，然后对16384取模，得到对应的槽位，根据槽找到对应的节点，如下图。
 
-![图片](data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='1px' height='1px' viewBox='0 0 1 1' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3E%3C/title%3E%3Cg stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' fill-opacity='0'%3E%3Cg transform='translate(-249.000000, -126.000000)' fill='%23FFFFFF'%3E%3Crect x='249' y='126' width='1' height='1'%3E%3C/rect%3E%3C/g%3E%3C/g%3E%3C/svg%3E)
+![图片](https://mmbiz.qpic.cn/mmbiz_jpg/cBnxLn7axrxS5Gkk0Rrtv3qYqxpnx3W5oGJFyb2d6thFE7SUxtSUxTXttRH0Tibt8Dpk38I7icjicMgcdbaC1J6sQ/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
 使用虚拟槽的好处：
 
@@ -529,7 +529,7 @@ Redis Cluster是一种服务端Sharding技术，Redis Cluster并没有使用一�
 
 上面介绍了Redis Cluster如何将数据分配到合适的节点，下面来介绍下Redis Cluster结构，简单来说，Redis Cluster可以看成多个主从架构组合在一起，如下图
 
-![图片](data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='1px' height='1px' viewBox='0 0 1 1' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3E%3C/title%3E%3Cg stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' fill-opacity='0'%3E%3Cg transform='translate(-249.000000, -126.000000)' fill='%23FFFFFF'%3E%3Crect x='249' y='126' width='1' height='1'%3E%3C/rect%3E%3C/g%3E%3C/g%3E%3C/svg%3E)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/cBnxLn7axrxS5Gkk0Rrtv3qYqxpnx3W5oVGkQIxeFu671TGrPScXdnZuPWLdia1SXHcBPiaXg8ToqMXWzehicfFwA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
 上图看起来比较乱，其实很好理解，上图中一个Redis Cluster有两组节点组成（官方推荐，一般至少三主三从六个节点，画多个节点看起来太乱，所以上图只画了两个主节点），每组节点可以看成一个主从模式，并且每组节点负责的slot不同（假设有4个slot，A组节点负责第1个和第二个slot，B组节点负责第3个和第4个，其中master节点负责写，slave节点负责读）
 
@@ -580,7 +580,7 @@ Redis主节点和从节点之间的复制是异步的，当主节点的数据未
 
 在Redis的配置文件中，有两个参数如下：
 
-```
+```shell
 min-slaves-to-write 1
 min-slaves-max-lag 10
 ```
@@ -625,7 +625,7 @@ min-slaves-max-lag 10
 
 **replication backlog：**replication backlog 是一个环形区域，大小可以通过 `repl-backlog-size`参数设置，并且和 replication buffer不同的是，一个主库中只有一个 replication backlog。
 
-![图片](data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='1px' height='1px' viewBox='0 0 1 1' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3E%3C/title%3E%3Cg stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' fill-opacity='0'%3E%3Cg transform='translate(-249.000000, -126.000000)' fill='%23FFFFFF'%3E%3Crect x='249' y='126' width='1' height='1'%3E%3C/rect%3E%3C/g%3E%3C/g%3E%3C/svg%3E)
+![图片](https://mmbiz.qpic.cn/mmbiz_png/cBnxLn7axrxS5Gkk0Rrtv3qYqxpnx3W5ZSNFHr3jqqmbIvqaCN0Eg44PGQwCrwibNF22qZLy6M0yoJSEFibqo45Q/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
 主库会通过 `master_repl_offset` 记录写入的位置，从库会通过 `slave_repl_offset` 记录自己读取的位置，这里的位置也叫做偏移量。
 
@@ -994,7 +994,7 @@ Redis并发竞争key就是多个客户端操作一个key，可能会导致数据
 
 ![图片](https://mmbiz.qpic.cn/mmbiz_jpg/cBnxLn7axrxS5Gkk0Rrtv3qYqxpnx3W5yKic1akRqvfm1u8eo9J9sK3ia3kh7ia7Uw7T40NSIaQ9HMG91VPSVP0gg/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
-步骤在图中写的已经比较清除了，这里简单说下为什么使用消息队列，消息队列可以保证写到队列中的消息在成功消费之前不会消失，并且在第4步中获取消息时只有消费成功才会删除消息，否则会继续投递消息给应用程序，符合消息重试的要求。
+步骤在图中写的已经比较清楚了，这里简单说下为什么使用消息队列，消息队列可以保证写到队列中的消息在成功消费之前不会消失，并且在第4步中获取消息时只有消费成功才会删除消息，否则会继续投递消息给应用程序，符合消息重试的要求。
 
 但这个方案也有一些缺点，比如系统复杂度高，对业务代码入侵严重，这时可以采用订阅数据库日志的方法删除缓存。如下图
 
@@ -1086,3 +1086,5 @@ LRU算法很常见，在学习操作系统时也经常看到，**淘汰最长时
 ### 生产环境中的Redis是如何部署的
 
 这个按自己得情况说就行了，但得提前想好怎么说，避免忘了
+
+[原文地址](https://mp.weixin.qq.com/s?__biz=MzA4NjU1MzA2MQ==&mid=2647726102&idx=1&sn=21617ecac89bdc0989b12db32658785d&chksm=87e3409cb094c98ad14ba73a1b9878faf6e8044aa31267d262e66b0352ca4775d4aa0dcb5a5b&scene=178&cur_album_id=1966226418825035778#rd)

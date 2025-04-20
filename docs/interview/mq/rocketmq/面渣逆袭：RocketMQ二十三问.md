@@ -28,7 +28,9 @@
 
 市场上几大消息队列对比如下：
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/PMZOEonJxWdpDiaP0AiaXoF5EGDSJ5zPgFaaYyibHFoa4p01nIoXeEkLIllIOmnWzdu01x7icycKJX5Sb6yYdN9ib4g/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)四大消息队列对比
+![图片](https://mmbiz.qpic.cn/mmbiz_png/PMZOEonJxWdpDiaP0AiaXoF5EGDSJ5zPgFaaYyibHFoa4p01nIoXeEkLIllIOmnWzdu01x7icycKJX5Sb6yYdN9ib4g/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+
+四大消息队列对比
 
 **总结一下**：
 

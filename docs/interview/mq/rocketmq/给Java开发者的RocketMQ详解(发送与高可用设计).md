@@ -1,7 +1,5 @@
 # 给Java开发者的RocketMQ详解(发送与高可用设计)
 
-![image](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfbe8aca933?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
 # 前言
 
 本文的目的:
@@ -12,27 +10,27 @@
 
 # 目录
 
-- [RocketMQ是什么?](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#whatIsMq)
-- [RocketMQ好在哪?](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#whyMqPerfect)
+- [RocketMQ是什么?](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23whatIsMq)
+- [RocketMQ好在哪?](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23whyMqPerfect)
 - 原理简析和API介绍(发送篇)
   - producer.start启动都做了哪些重要的事情
-    - [流程图](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#startDoActivityDiagram)
-    - [启动机制](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#startDoActivityDiagram)
-    - [小结](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#startDoSummary)
+    - [流程图](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23startDoActivityDiagram)
+    - [启动机制](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23startDoActivityDiagram)
+    - [小结](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23startDoSummary)
   - 同步发送
-    - [流程图](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#syncSendActivityDiagram)
-    - [tryToFindTopicPublishInfo 查找消息路由](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#tryToFindTopicPublishInfo)
-    - [selectOneMessageQueue选择消息队列发送消息](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#selectOneMessageQueue)
-    - [updateFaultItem 更新故障延迟机制](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#updateFaultItem)
-    - [用法](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#syncUsage)
-    - [小结](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#syncSummary)
+    - [流程图](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23syncSendActivityDiagram)
+    - [tryToFindTopicPublishInfo 查找消息路由](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23tryToFindTopicPublishInfo)
+    - [selectOneMessageQueue选择消息队列发送消息](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23selectOneMessageQueue)
+    - [updateFaultItem 更新故障延迟机制](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23updateFaultItem)
+    - [用法](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23syncUsage)
+    - [小结](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23syncSummary)
   - 异步发送
-    - [流程图](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#asyncActivityDiagram)
-    - [实现机制](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#asyncMechanism)
-    - [用法](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#asyncUsage)
-    - [小结](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#asyncSummary)
-  - [作为消息的发送方,如何做到消息不丢失](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#sendSuggestion)
-- [浅谈RocketMQ系统架构](https://note.youdao.com/md/?defaultMode=view&fileId=WEBb4d3d7f42fe3700e4a9a81b45688ca24#talkAboutArchitecture)
+    - [流程图](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23asyncActivityDiagram)
+    - [实现机制](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23asyncMechanism)
+    - [用法](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23asyncUsage)
+    - [小结](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23asyncSummary)
+  - [作为消息的发送方,如何做到消息不丢失](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23sendSuggestion)
+- [浅谈RocketMQ系统架构](https://link.juejin.cn/?target=https%3A%2F%2Fnote.youdao.com%2Fmd%2F%3FdefaultMode%3Dview%26fileId%3DWEBb4d3d7f42fe3700e4a9a81b45688ca24%23talkAboutArchitecture)
 
 # RocketMQ是什么?
 
@@ -40,7 +38,7 @@
 
 **Apache RocketMQ** 是一个分布式消息传递和流媒体平台，具有低延迟，高性能和可靠性，万亿级容量和灵活的可扩展性。
 
-![官方core图](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfc812d8ee7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![官方core图](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfc812d8ee7~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)
 
 - 是一个队列模型的消息中间件，具有高性能、高可靠、高实时、分布式特点。
 - Producer、Consumer队列都可以分布式。
@@ -59,7 +57,8 @@
 # 原理简析和API介绍(发送篇)
 
 ```
-DefaultMQProducer producer = new DefaultMQProducer("SYNC_PRODUCER_GROUP");
+代码解读
+复制代码DefaultMQProducer producer = new DefaultMQProducer("SYNC_PRODUCER_GROUP");
 // 设置NameServer地址
 producer.setNamesrvAddr("localhost:9876");
 // 只需要在发送前初始化一次
@@ -68,7 +67,6 @@ producer.start();
 Message msg = new Message("SYNC_MSG_TOPIC", "TagA", ("Hello RocketMQ ").getBytes(RemotingHelper.DEFAULT_CHARSET));
 // 发送同步消息
 SendResult sendResult = producer.send(msg);
-复制代码
 ```
 
 
@@ -79,7 +77,7 @@ SendResult sendResult = producer.send(msg);
 
 
 
-![start流程](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfbecf6ce24?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![start流程](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfbecf6ce24~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)
 
 ### 启动机制
 
@@ -88,31 +86,32 @@ SendResult sendResult = producer.send(msg);
 
 
 ```
-主要校验producerGroup属性是否满足
-复制代码
+代码解读
+复制代码主要校验producerGroup属性是否满足
 ```
 
 - **changeInstanceNameToPID 生成pid**
 - **getAndCreateMQClientInstance**
 
 ```
-创建MQClientlnstance实例
+代码解读
+复制代码创建MQClientlnstance实例
 
 MQClientlnstance封装了RocketMQ网络处理API,是消息生产者( Producer)、消息消费者(Consumer)与NameServer、Broker打交道的网络通道
-复制代码
 ```
 
 - **registerProducer注册producer**
 
 ```
-将当前生产者加入到MQClientlnstance管理中,方便后续调用网络请求、进行心跳检测等
-复制代码
+代码解读
+复制代码将当前生产者加入到MQClientlnstance管理中,方便后续调用网络请求、进行心跳检测等
 ```
 
 - **mQClientFactory.start() 通过mQClient工厂去启动各项服务**
 
-```
-public void start() throws MQClientException {
+```java
+代码解读
+复制代码public void start() throws MQClientException {
     synchronized (this) {
         switch (this.serviceState) {
             case CREATE_JUST:
@@ -145,21 +144,22 @@ public void start() throws MQClientException {
         }
     }
 }
-复制代码
 ```
 
 **这块做的事情有点多 首先 this.mQClientAPIImpl.start()**
 
 ```
- org.apache.rocketmq.remoting.netty.NettyRemotingClient#start
+代码解读
+复制代码 org.apache.rocketmq.remoting.netty.NettyRemotingClient#start
  
  通过romoting (netty客户端的实现)去建立连接 （反正这块可以理解为通过这个操作,可以服务通信了）
-复制代码
 ```
 
 **再者我们了解下startScheduledTask大心脏**
 
-```
+```java
+代码解读
+复制代码
 private void startScheduledTask() {
     // 定时校验nameSrv 保证地址不为空来维持后续服务的可用性
     if (null == this.clientConfig.getNamesrvAddr()) {
@@ -225,35 +225,34 @@ private void startScheduledTask() {
         }
     }, 1, 1, TimeUnit.MINUTES);
 }
-复制代码
 ```
 
 **接着启动了拉取消息服务**
 
 ```
-通过pullRequestQueue队列来维护拉取的消息
-复制代码
+代码解读
+复制代码通过pullRequestQueue队列来维护拉取的消息
 ```
 
 **this.rebalanceService.start**
 
 ```
-内部定时轮询做负载均衡
-复制代码
+代码解读
+复制代码内部定时轮询做负载均衡
 ```
 
 - sendHeartbeatToAllBrokerWithLock
 
 ```
-给所有broker发送心跳并且加锁
-复制代码
+代码解读
+复制代码给所有broker发送心跳并且加锁
 ```
 
 - **registerShutDownHook**
 
 ```
-注册相关的shutDown钩子
-复制代码
+代码解读
+复制代码注册相关的shutDown钩子
 ```
 
 
@@ -274,7 +273,7 @@ start()的流程主要步骤
 
 ### 同步发送流程图
 
-![同步发送流程](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfbed0d1b7a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)绿色块的是核心步骤,主要围绕这几块核心阐述一下 这边就不贴具体的代码了 避免篇幅过长
+![同步发送流程](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfbed0d1b7a~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)绿色块的是核心步骤,主要围绕这几块核心阐述一下 这边就不贴具体的代码了 避免篇幅过长
 
 
 
@@ -287,7 +286,8 @@ start()的流程主要步骤
 
 
 ```
-private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
+代码解读
+复制代码private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
     // 从本地缓存读取尝试获取
     TopicPublishInfo topicPublishInfo = this.topicPublishInfoTable.get(topic);
     if (null == topicPublishInfo || !topicPublishInfo.ok()) {
@@ -306,12 +306,11 @@ private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
         return topicPublishInfo;
     }
 }
-复制代码
 ```
 
 **步骤如下**
 
-![image](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfbf1c002ce?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)udateTopicRoutelnfoFromNameServer这个方法的功能是消息生产者更新和维护路由缓存,其内部会对比路由信息和本地的缓存路由信息,以此判断是否需要更新路由信息
+![image](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfbf1c002ce~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)udateTopicRoutelnfoFromNameServer这个方法的功能是消息生产者更新和维护路由缓存,其内部会对比路由信息和本地的缓存路由信息,以此判断是否需要更新路由信息
 
 
 
@@ -322,14 +321,15 @@ private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
 其实在这之前有行代码也值得关注一下 这块同步发送,mq本身是有个重试的次数可配置 默认x+1 然后根据发送的次数进行按需重试,如果失败就continue进入for循环
 
 ```
-int timesTotal = communicationMode == CommunicationMode.SYNC ? 1 + this.defaultMQProducer.getRetryTimesWhenSendFailed() : 1;
-复制代码
+代码解读
+复制代码int timesTotal = communicationMode == CommunicationMode.SYNC ? 1 + this.defaultMQProducer.getRetryTimesWhenSendFailed() : 1;
 ```
 
 **然后我们具体看一下是这么去选择消息队列的**
 
 ```
-public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
+代码解读
+复制代码public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
     //是否开启故障延时机制
     if (this.sendLatencyFaultEnable) {
         try {
@@ -369,7 +369,6 @@ public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final S
 
     return tpInfo.selectOneMessageQueue(lastBrokerName);
 }
-复制代码
 ```
 
 首先在一次消息发送过程中,可能会多次执行选择消息队列这个方法,lastBrokerName 就是上一次选择的执行发送消息失败的Broker.
@@ -387,7 +386,8 @@ public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final S
 
 
 ```
-/**
+代码解读
+复制代码/**
  * 更新故障延迟
  *
  * @param brokerName
@@ -415,7 +415,6 @@ private long computeNotAvailableDuration(final long currentLatency) {
 
     return 0;
 }
-复制代码
 ```
 
 如果isolation为true,则使用30s作为computeNotAvailableDuration方法的参数;
@@ -429,7 +428,8 @@ private long computeNotAvailableDuration(final long currentLatency) {
 
 
 ```
-DefaultMQProducer producer = new DefaultMQProducer("SYNC_PRODUCER_GROUP");
+代码解读
+复制代码DefaultMQProducer producer = new DefaultMQProducer("SYNC_PRODUCER_GROUP");
     // 设置NameServer地址
     producer.setNamesrvAddr("localhost:9876");
     // 只需要在发送前初始化一次
@@ -447,7 +447,6 @@ DefaultMQProducer producer = new DefaultMQProducer("SYNC_PRODUCER_GROUP");
         }
     }
 producer.shutdown();
-复制代码
 ```
 
 - 首先很多时候我们的系统连sendResult的结果都不关心[也难怪,毕竟框架都是void方法],别跟我说正常情况不会失败,如果失败怎么办,会不会本地做的一些操作会造成脏数据。
@@ -477,7 +476,7 @@ producer.shutdown();
 
 ### 流程图
 
-![RocketMQ异步回调机制](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfbee6ea3db?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![RocketMQ异步回调机制](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfbee6ea3db~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)
 
 
 
@@ -492,7 +491,8 @@ producer.shutdown();
 - 可配置一个特殊的线程池处理response或使用publicExecutor,当线程池拒绝任务,会在当前线程(defaultEventExecutorGroup)中执行回调
 
 ```
-private void executeInvokeCallback(final ResponseFuture responseFuture) {
+代码解读
+复制代码private void executeInvokeCallback(final ResponseFuture responseFuture) {
     boolean runInThisThread = false;
     // 这块执行的时候,优先去获取可配置的公用线程池,如果有可用的就使用,没有就跑在当前线程中
     ExecutorService executor = this.getCallbackExecutor();
@@ -528,13 +528,13 @@ private void executeInvokeCallback(final ResponseFuture responseFuture) {
         }
     }
 }
-复制代码
 ```
 
 - 递归的调用sendMessageAsync重发消息
 
 ```
- int tmp = curTimes.incrementAndGet();
+代码解读
+复制代码 int tmp = curTimes.incrementAndGet();
         if (needRetry && tmp <= timesTotal) {
             String retryBrokerName = brokerName;//by default, it will send to the same broker
             if (topicPublishInfo != null) { //select one message queue accordingly, in order to determine which broker to send
@@ -575,7 +575,6 @@ private void executeInvokeCallback(final ResponseFuture responseFuture) {
             } catch (Exception ignored) {
             }
         }
-复制代码
 ```
 
 这里很好理解:在remotingClient.invokeAsync这块有异常的话递归重试,并且规避不可用的broker
@@ -598,7 +597,8 @@ private void executeInvokeCallback(final ResponseFuture responseFuture) {
 
 
 ```
-producer.send(msg, new SendCallback() {
+代码解读
+复制代码producer.send(msg, new SendCallback() {
     @Override
     public void onSuccess(SendResult sendResult) {
         countDownLatch.countDown();
@@ -612,7 +612,6 @@ producer.send(msg, new SendCallback() {
         e.printStackTrace();
     }
 });
-复制代码
 ```
 
 
@@ -655,7 +654,7 @@ producer.send(msg, new SendCallback() {
 
 ## RocketMQ系统架构图
 
-![image](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfc3a1fb345?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![image](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfc3a1fb345~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)
 
 - producer去nameServer找broker 发消息到broker
 - consumer去nameServer找broker 从broker拉或接收消息
@@ -668,7 +667,8 @@ producer.send(msg, new SendCallback() {
 - broker启动往nameServer注册信息 org.apache.rocketmq.broker.BrokerController#doRegisterBrokerAll
 
 ```
-private void doRegisterBrokerAll(boolean checkOrderConfig, boolean oneway,
+代码解读
+复制代码private void doRegisterBrokerAll(boolean checkOrderConfig, boolean oneway,
     TopicConfigSerializeWrapper topicConfigWrapper) {
     List<RegisterBrokerResult> registerBrokerResultList = this.brokerOuterAPI.registerBrokerAll(
         this.brokerConfig.getBrokerClusterName(),
@@ -682,7 +682,6 @@ private void doRegisterBrokerAll(boolean checkOrderConfig, boolean oneway,
         this.brokerConfig.getRegisterBrokerTimeoutMills(),
         this.brokerConfig.isCompressedRegister());
 }
-复制代码
 ```
 
 nameServer将broker丢过来的数据搞成自己维护的一套
@@ -729,23 +728,23 @@ SYNC_MASTER和ASYNC_MASTER传输数据到salve的过程是一致的，只是时�
 
 #### 开始的mq架构直接写入磁盘
 
-![写入模型一](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfc14ccd16e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)直观感受,IO操作性能是比较低的
+![写入模型一](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfc14ccd16e~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)直观感受,IO操作性能是比较低的
 
 ### 发现操作系统级别有个Page Cache[或 称OS Cache]的东西,
 
-![写入模型二](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfc1b6d2e6e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)基于ECS乞丐版linux环境测试 无cache写入和有cache ![无cache写入](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfc1966d451?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)![cache写入](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfc3f2d2877?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![写入模型二](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfc1b6d2e6e~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)基于ECS乞丐版linux环境测试 无cache写入和有cache ![无cache写入](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfc1966d451~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)![cache写入](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfc3f2d2877~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)
 
 写入819M的操作,cache操作只需要7s 无cache操作就需要80s左右;更何况这是台烂机器的配置,好点的机器应该能相差个百倍;
 
 所以如果按照第一个写入模型 如果写入1条耗时1ms => 1000/s 利用OS Cache的话 假设写入1条耗时0.01ms => 10w/s 这样一来每秒支持几十万已经初步实现
 
-[page cache了解链接](https://www.ibm.com/developerworks/cn/linux/l-cn-read/index.html)
+[page cache了解链接](https://link.juejin.cn/?target=https%3A%2F%2Fwww.ibm.com%2Fdeveloperworks%2Fcn%2Flinux%2Fl-cn-read%2Findex.html)
 
 ### 零拷贝技术
 
 #### 首先写的问题解决了,那么消费者怎么读,按照我们的经验肯定是缓存啊,那么来吧
 
-![读取模型一](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfc41d32d13?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![读取模型一](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfc41d32d13~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)
 
 数据源:磁盘读到缓存(OS cache) cache copy -> 进程缓存 -> cache copy -> SOCKET
 
@@ -753,4 +752,8 @@ SYNC_MASTER和ASYNC_MASTER传输数据到salve的过程是一致的，只是时�
 
 #### 于是引入了零拷贝技术
 
-![读取模型二](https://user-gold-cdn.xitu.io/2019/7/30/16c40cfc46edf475?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)不难理解对Socket缓存仅仅就是拷贝数据的描述符过去,然后数据就直接从os cache中发送到网卡上去了，这个过程大大的提升了数据消费时读取文件数据的性能
+![读取模型二](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/7/30/16c40cfc46edf475~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)不难理解对Socket缓存仅仅就是拷贝数据的描述符过去,然后数据就直接从os cache中发送到网卡上去了，这个过程大大的提升了数据消费时读取文件数据的性能
+
+
+
+[原文地址](https://juejin.cn/post/6844903902437965832)
