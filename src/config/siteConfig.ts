@@ -189,6 +189,8 @@ export const siteConfig: SiteConfig = {
 			// 是否开启网站录屏功能
 			screenRecord: true,
 		},
+		//百度统计 ID
+		baiduAnalyticsId:"cd60ae8b29b4cf4a01e9935fadc5022b"
 	},
 
 	// 图像优化及响应式配置
