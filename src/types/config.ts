@@ -125,6 +125,7 @@ export type SiteConfig = {
 			hashMode?: boolean; // 单页面应用统计（Vue/React 等），默认 false
 			screenRecord?: boolean; // 开启网站录屏功能，默认 true
 		};
+		baiduAnalyticsId?: string;
 	};
 
 	// 图片优化配置

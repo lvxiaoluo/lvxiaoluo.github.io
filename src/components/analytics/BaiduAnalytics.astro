@@ -1,0 +1,17 @@
+---
+interface Props {
+	baiduAnalyticsId: string;
+}
+
+const { baiduAnalyticsId } = Astro.props;
+---
+
+<script is:inline data-swup-ignore-script define:vars={{ baiduAnalyticsId }}>
+	var _hmt = _hmt || [];
+	(function() {
+		var hm = document.createElement("script");
+		hm.src = "https://hm.baidu.com/hm.js?" + baiduAnalyticsId;
+		var s = document.getElementsByTagName("script")[0]; 
+		s.parentNode.insertBefore(hm, s);
+	})();
+</script>

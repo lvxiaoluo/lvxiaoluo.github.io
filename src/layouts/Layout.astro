@@ -3,6 +3,7 @@ import GoogleAnalytics from "@components/analytics/GoogleAnalytics.astro";
 import La51Analytics from "@components/analytics/La51Analytics.astro";
 import MicrosoftClarity from "@components/analytics/MicrosoftClarity.astro";
 import UmamiAnalytics from "@components/analytics/UmamiAnalytics.astro";
+import BaiduAnalytics from "@/components/analytics/BaiduAnalytics.astro";
 import FancyboxManager from "@components/features/FancyboxManager.astro";
 import FontManager from "@components/features/FontManager.astro";
 import MusicManager from "@components/features/MusicManager.astro";
@@ -120,7 +121,10 @@ const siteLang = lang.replace("_", "-");
             screenRecord={siteConfig.analytics.la51Analytics?.screenRecord}
             />
     )}
-
+     {siteConfig.analytics?.baiduAnalyticsId && (
+            <BaiduAnalytics baiduAnalyticsId={siteConfig.analytics.baiduAnalyticsId} />
+    )}
+    
     <title>{pageTitle}</title>
     <meta
       name="description"
