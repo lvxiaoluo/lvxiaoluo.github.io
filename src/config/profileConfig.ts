@@ -9,7 +9,7 @@ export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/avatar.png",
 
 	// 名字
-	name: "吕小洛",
+	name: "小洛的技术工作坊",
 
 	// 个人签名
 	bio: "好读书、无甚解、求智慧、得自在",

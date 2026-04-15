@@ -85,6 +85,7 @@ export type SiteConfig = {
 		guestbook: boolean; // 留言板页面开关
 		bangumi: boolean;
 		gallery: boolean; // 相册页面开关
+		skills: boolean;// 技能开关
 	};
 
 	// 分类导航栏开关

@@ -83,7 +83,20 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 			// 	icon: "fa7-brands:qq",
 			// },
 		],
-	});
+	},
+	{
+		name: "Others",
+		url: "#",
+		icon: "material-symbols:more-horiz",
+		children: [
+			{
+				name: "Skills",
+				url: "/skills/",
+				icon: "material-symbols:psychology",
+			}
+		],
+	}
+	);
 
 	// 仅返回链接，其它导航搜索相关配置在模块顶层常量中独立导出
 	return { links } as NavBarConfig;

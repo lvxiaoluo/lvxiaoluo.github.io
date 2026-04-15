@@ -301,6 +301,35 @@ enum I18nKey {
 	passwordSubmit = "passwordSubmit",
 	passwordError = "passwordError",
 	passwordProtectedRss = "passwordProtectedRss",
+
+
+	// Skills page
+	skills = "skills",
+	skillsSubtitle = "skillsSubtitle",
+	skillsFrontend = "skillsFrontend",
+	skillsBackend = "skillsBackend",
+	skillsDatabase = "skillsDatabase",
+	skillsTools = "skillsTools",
+	skillsOther = "skillsOther",
+	skillLevel = "skillLevel",
+	skillLevelBeginner = "skillLevelBeginner",
+	skillLevelIntermediate = "skillLevelIntermediate",
+	skillLevelAdvanced = "skillLevelAdvanced",
+	skillLevelExpert = "skillLevelExpert",
+	skillExperience = "skillExperience",
+	skillYears = "skillYears",
+	skillMonths = "skillMonths",
+	skillsTotal = "skillsTotal",
+	skillsExpert = "skillsExpert",
+	skillsAdvanced = "skillsAdvanced",
+	skillsIntermediate = "skillsIntermediate",
+	skillsBeginner = "skillsBeginner",
+	skillsAdvancedTitle = "skillsAdvancedTitle",
+	skillsProjects = "skillsProjects",
+	skillsDistribution = "skillsDistribution",
+	skillsByLevel = "skillsByLevel",
+	skillsByCategory = "skillsByCategory",
+	noData = "noData",
 }
 
 export default I18nKey;
