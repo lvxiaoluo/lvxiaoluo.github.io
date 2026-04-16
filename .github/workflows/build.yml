@@ -65,3 +65,5 @@ jobs:
 
       - name: Run Astro Build
         run: pnpm astro build
+        env:
+          ENABLE_CONTENT_SYNC: true
