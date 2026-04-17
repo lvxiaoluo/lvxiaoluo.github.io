@@ -22,7 +22,7 @@ jobs:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
         with:
-          submodules: true  # 支持 Git Submodule 模式
+          submodules: false  # 支持 Git Submodule 模式
           token: ${{ secrets.GITHUB_TOKEN }}  # 自动访问同账号下的私有仓库
       
       - name: Setup Node.js
@@ -44,7 +44,7 @@ jobs:
           # 如果需要启用内容分离,取消以下注释并配置
           ENABLE_CONTENT_SYNC: true
           CONTENT_REPO_URL: ${{ secrets.CONTENT_REPO_URL }}
-          USE_SUBMODULE: true
+          USE_SUBMODULE: false
       
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4
