@@ -19,6 +19,12 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      # 添加 SSH 配置步骤
+      - name: Setup SSH Key
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Checkout your repository using git
         uses: actions/checkout@v4
         with:
