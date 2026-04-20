@@ -330,6 +330,7 @@ enum I18nKey {
 	skillsByLevel = "skillsByLevel",
 	skillsByCategory = "skillsByCategory",
 	noData = "noData",
+
 }
 
 export default I18nKey;
