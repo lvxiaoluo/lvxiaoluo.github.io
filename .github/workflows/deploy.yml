@@ -43,7 +43,11 @@ jobs:
           
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-      
+
+      - name: Debug directory structure
+        run: |
+          ls -R src/
+          ls -R scripts/
       - name: Build site
         run: pnpm run build
         env:
