@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -54,7 +54,6 @@ jobs:
       
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4
-        permissions: write-all
         with:
           branch: pages # 部署到pages分支
           folder: dist # Astro默认构建输出目录
