@@ -26,18 +26,18 @@ jobs:
 #          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Checkout your repository using git
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           submodules: false  # 支持 Git Submodule 模式
           token: ${{ secrets.GITHUB_TOKEN }}  # 自动访问同账号下的私有仓库
       
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
           
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@v4
         with:
           run_install: false
           
@@ -53,7 +53,7 @@ jobs:
           USE_SUBMODULE: false
       
       - name: Deploy to pages branch
-        uses: JamesIves/github-pages-deploy-action@v4.8.0
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: pages # 部署到pages分支
           folder: dist # Astro默认构建输出目录
