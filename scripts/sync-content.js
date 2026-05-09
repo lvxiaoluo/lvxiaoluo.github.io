@@ -31,6 +31,7 @@ if (!ENABLE_CONTENT_SYNC) {
 // 检查内容目录是否存在
 if (!fs.existsSync(CONTENT_DIR)) {
 	console.log(`内容目录不存在：${CONTENT_DIR}`);
+	console.log(`当前目录：${rootDir}`);
 	console.log("将使用独立仓库模式");
 
 	if (!CONTENT_REPO_URL) {
@@ -128,6 +129,7 @@ for (const mapping of contentMappings) {
 
 	// 创建符号链接 (Windows 需要管理员权限,否则复制文件)
 	try {
+		console.log(`destPath：${destPath} -> ${srcPath}`);
 		const relPath = path.relative(path.dirname(destPath), srcPath);
 		fs.symlinkSync(relPath, destPath, "junction");
 		console.log(`已创建符号链接：${mapping.dest} -> ${mapping.src}`);
