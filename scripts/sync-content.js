@@ -15,6 +15,7 @@ console.log("已加载 .env 配置文件\n");
 const ENABLE_CONTENT_SYNC = process.env.ENABLE_CONTENT_SYNC !== "false"; // 默认启用
 const CONTENT_REPO_URL = process.env.CONTENT_REPO_URL || "";
 const CONTENT_DIR = process.env.CONTENT_DIR || path.join(rootDir, "content");
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
 
 console.log("开始同步内容...\n");
 
@@ -44,7 +45,13 @@ if (!fs.existsSync(CONTENT_DIR)) {
 
 	try {
 		console.log(`正在克隆内容仓库：${CONTENT_REPO_URL}`);
-		execSync(`git clone --depth 1 ${CONTENT_REPO_URL} ${CONTENT_DIR}`, {
+		// 如果提供了 GITHUB_TOKEN，使用 token 认证
+		let repoUrl = CONTENT_REPO_URL;
+		if (GITHUB_TOKEN && repoUrl.startsWith("https://github.com/")) {
+			repoUrl = repoUrl.replace("https://github.com/", `https://${GITHUB_TOKEN}@github.com/`);
+			console.log("使用 GITHUB_TOKEN 进行认证");
+		}
+		execSync(`git clone --depth 1 ${repoUrl} ${CONTENT_DIR}`, {
 			stdio: "inherit",
 			cwd: rootDir,
 		});
@@ -59,6 +66,19 @@ if (!fs.existsSync(CONTENT_DIR)) {
 	if (fs.existsSync(path.join(CONTENT_DIR, ".git"))) {
 		try {
 			console.log("正在同步远程内容（强制模式）...");
+
+			// 如果提供了 GITHUB_TOKEN，配置 git credentials
+			if (GITHUB_TOKEN) {
+				console.log("使用 GITHUB_TOKEN 进行认证");
+				execSync(
+					`git config credential.helper 'store --file=/tmp/git-credentials'`,
+					{ cwd: CONTENT_DIR }
+				);
+				execSync(
+					`echo "https://${GITHUB_TOKEN}@github.com" > /tmp/git-credentials`,
+					{ cwd: CONTENT_DIR }
+				);
+			}
 
 			// 1. 防止本地修改丢失
 			execSync("git stash push --include-untracked -m 'auto-sync'", {
@@ -81,10 +101,10 @@ if (!fs.existsSync(CONTENT_DIR)) {
 			}
 
 			// 4. 强制同步
-		execSync(`git checkout ${branch}`, { cwd: CONTENT_DIR });
-		execSync(`git reset --hard origin/${branch}`, { cwd: CONTENT_DIR });
+			execSync(`git checkout ${branch}`, { cwd: CONTENT_DIR });
+			execSync(`git reset --hard origin/${branch}`, { cwd: CONTENT_DIR });
 
-		console.log(`内容同步成功（分支：${branch}）`);
+			console.log(`内容同步成功（分支：${branch}）`);
 		} catch (error) {
 			console.warn("内容更新失败：", error.message);
 		}
