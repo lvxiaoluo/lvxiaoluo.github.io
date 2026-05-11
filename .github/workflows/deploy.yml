@@ -50,7 +50,7 @@ jobs:
           # 如果需要启用内容分离,取消以下注释并配置
           ENABLE_CONTENT_SYNC: true
           CONTENT_REPO_URL: https://${{ secrets.PAT_TOKEN }}@github.com/lvxiaoluo/blog-content.git
-          USE_SUBMODULE: false
+          USE_SUBMODULE: true
 
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4
