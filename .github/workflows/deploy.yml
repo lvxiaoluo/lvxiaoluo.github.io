@@ -28,8 +28,8 @@ jobs:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
         with:
-          submodules: false  # 支持 Git Submodule 模式
-          token: ${{ secrets.GITHUB_TOKEN }}  # 自动访问同账号下的私有仓库
+          submodules: true  # 支持 Git Submodule 模式
+          token: ${{ secrets.PAT_TOKEN }}  # 自动访问同账号下的私有仓库
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -49,9 +49,8 @@ jobs:
         env:
           # 如果需要启用内容分离,取消以下注释并配置
           ENABLE_CONTENT_SYNC: true
-          CONTENT_REPO_URL: ${{ secrets.CONTENT_REPO_URL }}
+          CONTENT_REPO_URL: https://${{ secrets.PAT_TOKEN }}@github.com:lvxiaoluo/blog-content.git
           USE_SUBMODULE: false
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4
