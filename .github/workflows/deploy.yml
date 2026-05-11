@@ -16,7 +16,7 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       # 添加 SSH 配置步骤
@@ -51,25 +51,10 @@ jobs:
           ENABLE_CONTENT_SYNC: true
           CONTENT_REPO_URL: ${{ secrets.CONTENT_REPO_URL }}
           USE_SUBMODULE: false
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: dist
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-#      - name: Deploy to pages branch
-#        uses: JamesIves/github-pages-deploy-action@v4
-#        with:
-#          branch: pages # 部署到pages分支
-#          folder: dist # Astro默认构建输出目录
-#          clean: true # 清理目标分支中的旧文件
+          branch: pages # 部署到pages分支
+          folder: dist # Astro默认构建输出目录
+          clean: true # 清理目标分支中的旧文件
