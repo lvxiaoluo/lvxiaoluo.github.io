@@ -39,9 +39,8 @@ jobs:
       - name: Build site
         run: pnpm run build
         env:
-          # 禁用内容分离，使用本地内容
-          ENABLE_CONTENT_SYNC: true
-          CONTENT_REPO_URL: https://${{ secrets.PAT_TOKEN }}@github.com/lvxiaoluo/blog-content.git
+          # 禁用内容同步，使用本地内容
+          ENABLE_CONTENT_SYNC: false
           USE_SUBMODULE: false
 
       - name: Check dist directory
