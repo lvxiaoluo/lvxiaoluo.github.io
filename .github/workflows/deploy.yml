@@ -1,11 +1,9 @@
 name: Deploy to GitHub Pages
 
 on:
-  # 每次推送到 `main` 分支时触发这个"工作流程"
-  # 如果你使用了别的分支名，请按需将 `main` 替换成你的分支名
   push:
     branches: [main]
-  repository_dispatch:  # 添加这个触发器
+  repository_dispatch:
     types:
       - content-updated
   workflow_dispatch:
@@ -19,17 +17,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 添加 SSH 配置步骤
-#      - name: Setup SSH Key
-#        uses: webfactory/ssh-agent@v0.8.0
-#        with:
-#          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       - name: Checkout your repository using git
         uses: actions/checkout@v4
         with:
-          submodules: true  # 支持 Git Submodule 模式
-          token: ${{ secrets.PAT_TOKEN }}  # 自动访问同账号下的私有仓库
+          submodules: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,14 +38,25 @@ jobs:
       - name: Build site
         run: pnpm run build
         env:
-          # 如果需要启用内容分离,取消以下注释并配置
-          ENABLE_CONTENT_SYNC: true
-          CONTENT_REPO_URL: https://${{ secrets.PAT_TOKEN }}@github.com/lvxiaoluo/blog-content.git
-          USE_SUBMODULE: true
+          # 禁用内容分离，使用本地内容
+          ENABLE_CONTENT_SYNC: false
+
+      - name: Check dist directory
+        run: |
+          echo "=== dist 目录内容 ==="
+          ls -la dist/
+          echo ""
+          echo "=== _astro 目录内容 ==="
+          ls -la dist/_astro/ 2>/dev/null || echo "_astro 目录不存在"
+          echo ""
+          echo "=== index.html 检查 ==="
+          head -50 dist/index.html 2>/dev/null || echo "index.html 不存在"
 
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: pages # 部署到pages分支
-          folder: dist # Astro默认构建输出目录
-          clean: true # 清理目标分支中的旧文件
+          branch: pages
+          folder: dist
+          clean: true
+          clean-exclude: |
+            .gitkeep
