@@ -54,7 +54,26 @@ jobs:
           echo ""
           echo "=== index.html 检查 ==="
           head -50 dist/index.html 2>/dev/null || echo "index.html 不存在"
-
+          echo ""
+          echo "=== .nojekyll 文件检查 ==="
+          if [ -f "dist/.nojekyll" ]; then
+            echo ".nojekyll 文件存在"
+          else
+            echo ".nojekyll 文件不存在，创建它"
+            touch dist/.nojekyll
+          fi
+      - name: Verify dist folder
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "dist 目录不存在，构建失败"
+          fi
+          if [ ! -f "dist/index.html" ]; then
+            echo "缺少 index.html，部署失败"
+          fi
+          if [ ! -f "dist/.nojekyll" ]; then
+            echo "缺少 .nojekyll 文件，创建它"
+            touch dist/.nojekyll
+          fi
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
