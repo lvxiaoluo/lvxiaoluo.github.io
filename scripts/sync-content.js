@@ -60,19 +60,28 @@ if (!fs.existsSync(CONTENT_DIR)) {
 		try {
 			console.log("正在同步远程内容（强制模式）...");
 
-			// 1. 防止本地修改丢失
-			execSync("git stash push --include-untracked -m 'auto-sync'", {
-				stdio: "inherit",
-				cwd: CONTENT_DIR,
-			});
+			// 1. 检查本地是否有未提交修改（防止被强制同步覆盖）
+			const hasLocalChanges =
+				execSync("git status --porcelain", { cwd: CONTENT_DIR })
+					.toString()
+					.trim().length > 0;
 
-			// 2. 更新远程引用
+			// 2. 有本地修改时先暂存，同步完成后自动恢复
+			if (hasLocalChanges) {
+				console.log("检测到本地未提交修改，先暂存（同步完成后自动恢复）...");
+				execSync("git stash push --include-untracked -m 'auto-sync'", {
+					stdio: "inherit",
+					cwd: CONTENT_DIR,
+				});
+			}
+
+			// 3. 更新远程引用
 			execSync("git fetch --all --prune", {
 				stdio: "inherit",
 				cwd: CONTENT_DIR,
 			});
 
-			// 3. 判断分支
+			// 4. 判断分支
 			let branch = "main";
 			try {
 				execSync("git rev-parse --verify origin/main", { cwd: CONTENT_DIR });
@@ -80,11 +89,27 @@ if (!fs.existsSync(CONTENT_DIR)) {
 				branch = "master";
 			}
 
-			// 4. 强制同步
-		execSync(`git checkout ${branch}`, { cwd: CONTENT_DIR });
-		execSync(`git reset --hard origin/${branch}`, { cwd: CONTENT_DIR });
+			// 5. 强制同步
+			execSync(`git checkout ${branch}`, { cwd: CONTENT_DIR });
+			execSync(`git reset --hard origin/${branch}`, { cwd: CONTENT_DIR });
 
-		console.log(`内容同步成功（分支：${branch}）`);
+			// 6. 恢复本地未提交修改
+			if (hasLocalChanges) {
+				try {
+					execSync("git stash pop", {
+						stdio: "inherit",
+						cwd: CONTENT_DIR,
+					});
+					console.log("已恢复本地未提交修改");
+				} catch (error) {
+					console.warn("恢复本地修改失败（可能与远端内容冲突）：", error.message);
+					console.warn(
+						"本地修改已保留在 stash 中，可通过 git stash list/pop 手动处理",
+					);
+				}
+			}
+
+			console.log(`内容同步成功（分支：${branch}）`);
 		} catch (error) {
 			console.warn("内容更新失败：", error.message);
 		}
