@@ -49,7 +49,7 @@
         {
           "title": "category",
           "name": "category",
-          "type": "string"
+          "type": "list"
         },
         {
           "title": "draft",

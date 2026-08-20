@@ -1,6 +1,4 @@
 import { type CollectionEntry, getCollection } from "astro:content";
-import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
 import { getCategoryUrl } from "@utils/url-utils";
 
 // // Retrieve posts and sort them by publication date
@@ -83,41 +81,205 @@ export type Category = {
 	url: string;
 };
 
-export async function getCategoryList(): Promise<Category[]> {
+/**
+ * Hierarchical category tree node.
+ * `path` is the full path from root to this node, e.g. ["前端", "React"].
+ * `count` is the number of posts directly assigned to this exact path.
+ * `totalCount` includes posts in this node and all descendant nodes.
+ */
+export type CategoryNode = {
+	name: string;
+	path: string[];
+	count: number;
+	totalCount: number;
+	url: string;
+	children: CategoryNode[];
+};
+
+/**
+ * A flattened category node with depth info and parent index,
+ * used for rendering tree structures without recursive components.
+ */
+export type FlatCategoryNode = {
+	name: string;
+	path: string[];
+	count: number;
+	totalCount: number;
+	url: string;
+	depth: number;
+	hasChildren: boolean;
+	parentIndex: number; // -1 for root-level nodes
+};
+
+/**
+ * Flatten a category tree into an ordered list with depth and parent info.
+ * Children appear immediately after their parent, in depth-first order.
+ */
+export function flattenCategoryTree(
+	tree: CategoryNode[],
+	depth = 0,
+	parentIndex = -1,
+): FlatCategoryNode[] {
+	const result: FlatCategoryNode[] = [];
+	for (const node of tree) {
+		const idx = result.length + (parentIndex >= 0 ? parentIndex + 1 : 0);
+		const flatNode: FlatCategoryNode = {
+			name: node.name,
+			path: node.path,
+			count: node.count,
+			totalCount: node.totalCount,
+			url: node.url,
+			depth,
+			hasChildren: node.children.length > 0,
+			parentIndex,
+		};
+		result.push(flatNode);
+		// Recurse into children - use current position as parent index
+		const childNodes = flattenCategoryTree(
+			node.children,
+			depth + 1,
+			result.length - 1,
+		);
+		result.push(...childNodes);
+	}
+	return result;
+}
+
+/**
+ * Normalize a category value (string or string[]) into a string[] path.
+ * Empty/blank strings and null/undefined are normalized to an empty array.
+ */
+export function getCategoryPath(category: string | string[] | null | undefined): string[] {
+	if (!category) return [];
+	if (Array.isArray(category)) {
+		return category.map((s) => s.trim()).filter(Boolean);
+	}
+	const trimmed = category.trim();
+	return trimmed ? [trimmed] : [];
+}
+
+/**
+ * Build a hierarchical category tree from all posts.
+ * Each post's category (string or string[]) is treated as a path in the tree.
+ */
+export async function getCategoryTree(): Promise<CategoryNode[]> {
 	const allBlogPosts = await getCollection<"posts">("posts", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
-	const count: { [key: string]: number } = {};
-	allBlogPosts.forEach((post: { data: { category: string | null } }) => {
-		if (!post.data.category) {
-			const ucKey = i18n(I18nKey.uncategorized);
-			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
-			return;
+
+	// Recursive map-based tree structure
+	type TreeNode = {
+		name: string;
+		path: string[];
+		count: number;
+		children: Map<string, TreeNode>;
+	};
+
+	const rootChildren = new Map<string, TreeNode>();
+
+	for (const post of allBlogPosts) {
+		const path = getCategoryPath(post.data.category);
+		if (path.length === 0) continue;
+
+		let currentMap = rootChildren;
+		let accumulated: string[] = [];
+
+		for (const segment of path) {
+			accumulated = [...accumulated, segment];
+			let node = currentMap.get(segment);
+			if (!node) {
+				node = { name: segment, path: accumulated, count: 0, children: new Map() };
+				currentMap.set(segment, node);
+			}
+			currentMap = node.children;
 		}
 
-		const categoryName =
-			typeof post.data.category === "string"
-				? post.data.category.trim()
-				: String(post.data.category).trim();
-
-		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
-	});
-
-	const lst = Object.keys(count).sort((a, b) => {
-		return (
-			count[b] - count[a] || a.toLowerCase().localeCompare(b.toLowerCase())
-		);
-	});
-
-	const ret: Category[] = [];
-	for (const c of lst) {
-		ret.push({
-			name: c,
-			count: count[c],
-			url: getCategoryUrl(c),
-		});
+		// Increment the direct count on the leaf node
+		let leafNode: TreeNode | undefined;
+		let searchMap = rootChildren;
+		for (const segment of path) {
+			leafNode = searchMap.get(segment);
+			if (!leafNode) break;
+			searchMap = leafNode.children;
+		}
+		if (leafNode) {
+			leafNode.count++;
+		}
 	}
-	return ret;
+
+	// Convert the tree map structure into CategoryNode[] recursively
+	function toCategoryNode(node: TreeNode): CategoryNode {
+		const children: CategoryNode[] = [];
+		let childTotalCount = 0;
+		for (const child of node.children.values()) {
+			const childNode = toCategoryNode(child);
+			children.push(childNode);
+			childTotalCount += childNode.totalCount;
+		}
+		// Sort children by totalCount desc, then alphabetically
+		children.sort(
+			(a, b) =>
+				b.totalCount - a.totalCount ||
+				a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+		);
+		return {
+			name: node.name,
+			path: node.path,
+			count: node.count,
+			totalCount: node.count + childTotalCount,
+			url: getCategoryUrl(node.path),
+			children,
+		};
+	}
+
+	const result: CategoryNode[] = [];
+	for (const node of rootChildren.values()) {
+		result.push(toCategoryNode(node));
+	}
+
+	// Sort top-level by totalCount desc, then alphabetically
+	result.sort(
+		(a, b) =>
+			b.totalCount - a.totalCount ||
+			a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+	);
+
+	return result;
+}
+
+/**
+ * Flatten a CategoryNode tree into a flat Category[] list (for backward compatibility).
+ * Only includes leaf-level paths (nodes where posts actually exist) plus intermediate
+ * nodes that have direct posts.
+ */
+export async function getCategoryList(): Promise<Category[]> {
+	const tree = await getCategoryTree();
+	const result: Category[] = [];
+
+	function flatten(nodes: CategoryNode[]) {
+		for (const node of nodes) {
+			// Include this node if it has direct posts or is a leaf
+			if (node.count > 0 || node.children.length === 0) {
+				result.push({
+					name: node.path.join(" / "),
+					count: node.totalCount,
+					url: node.url,
+				});
+			}
+			flatten(node.children);
+		}
+	}
+
+	flatten(tree);
+
+	// Sort by count desc, then alphabetically
+	result.sort(
+		(a, b) =>
+			b.count - a.count ||
+			a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+	);
+
+	return result;
 }
 
 /**
@@ -171,7 +333,8 @@ export async function getRelatedPosts(
 
 	const currentTags = new Set(currentPost.data.tags || []);
 	const currentTokens = tokenizeTitle(currentPost.data.title);
-	const currentCategory = currentPost.data.category || "";
+	const currentCategoryPath = getCategoryPath(currentPost.data.category);
+	const currentLeaf = currentCategoryPath[currentCategoryPath.length - 1] || "";
 	const now = Date.now();
 
 	const scored = candidates.map((post) => {
@@ -191,10 +354,11 @@ export async function getRelatedPosts(
 		const timeFreshnessScore =
 			30 * Math.exp((-Math.LN2 * daysSincePublished) / 180);
 
-		// categoryBonus (0 or 10)
-		const postCategory = post.data.category || "";
+		// categoryBonus (0 or 10) - compare leaf categories
+		const postCategoryPath = getCategoryPath(post.data.category);
+		const postLeaf = postCategoryPath[postCategoryPath.length - 1] || "";
 		const categoryBonus =
-			currentCategory && postCategory && currentCategory === postCategory
+			currentLeaf && postLeaf && currentLeaf === postLeaf
 				? 10
 				: 0;
 

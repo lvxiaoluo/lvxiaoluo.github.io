@@ -4,7 +4,7 @@ published: 2024-01-01
 pinned: false
 description: 一个包含 Mermaid 的 Markdown 博客文章简单示例。
 tags: [Markdown, 博客, Mermaid]
-category: 文章示例
+category: [文章示例, Mermaid,TEST]
 draft: false
 ---
 # Markdown 中 Mermaid 图表完整指南

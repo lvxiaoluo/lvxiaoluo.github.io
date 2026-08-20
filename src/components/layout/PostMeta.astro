@@ -4,12 +4,13 @@ import { commentConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
+import { getCategoryPath } from "@/utils/content-utils";
 import { getCategoryUrl, getTagUrl } from "@/utils/url-utils";
 
 export interface Props {
 	published: Date;
 	updated?: Date;
-	category?: string;
+	category?: string | string[];
 	tags?: string[];
 	hideUpdateDate?: boolean;
 	hideTagsForMobile?: boolean;
@@ -40,6 +41,7 @@ const {
 } = Astro.props;
 
 const path = customPath || (id ? `/posts/${id}` : "");
+const categoryPath = getCategoryPath(category);
 ---
 
 <div
@@ -94,14 +96,31 @@ const path = customPath || (id ? `/posts/${id}` : "");
       <Icon name="material-symbols:book-2-outline-rounded" class="text-xl" />
     </div>
     <div class="flex flex-row flex-nowrap items-center">
-      <a
-        href={getCategoryUrl(category || "")}
-        aria-label={`View all posts in the ${category} category`}
-        class="link-lg transition text-50 text-sm font-medium
+      {categoryPath.length === 0 && (
+        <a
+          href={getCategoryUrl("")}
+          aria-label="Uncategorized"
+          class="link-lg transition text-50 text-sm font-medium
                             hover:text-(--primary) dark:hover:text-(--primary) whitespace-nowrap"
-      >
-        {category || i18n(I18nKey.uncategorized)}
-      </a>
+        >
+          {i18n(I18nKey.uncategorized)}
+        </a>
+      )}
+      {categoryPath.map((segment, i) => (
+        <>
+          {i > 0 && (
+            <span class="mx-1 text-(--meta-divider) text-sm select-none">/</span>
+          )}
+          <a
+            href={getCategoryUrl(categoryPath.slice(0, i + 1))}
+            aria-label={`View all posts in the ${segment} category`}
+            class="link-lg transition text-50 text-sm font-medium
+                            hover:text-(--primary) dark:hover:text-(--primary) whitespace-nowrap"
+          >
+            {segment}
+          </a>
+        </>
+      ))}
     </div>
   </div>
 

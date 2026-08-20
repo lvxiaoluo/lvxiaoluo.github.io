@@ -31,14 +31,27 @@ export function getTagUrl(tag: string): string {
 	return url(`/archive/?tag=${encodeURIComponent(tag.trim())}`);
 }
 
-export function getCategoryUrl(category: string | null): string {
+export function getCategoryUrl(category: string | string[] | null | undefined): string {
+	if (!category) return url("/archive/?uncategorized=true");
+
+	const pathParts = Array.isArray(category)
+		? category.map((s) => s.trim()).filter(Boolean)
+		: [category.trim()].filter(Boolean);
+
+	if (pathParts.length === 0) return url("/archive/?uncategorized=true");
+
+	// Check if the single-level category is "uncategorized"
 	if (
-		!category ||
-		category.trim() === "" ||
-		category.trim().toLowerCase() === i18n(I18nKey.uncategorized).toLowerCase()
+		pathParts.length === 1 &&
+		pathParts[0].toLowerCase() === i18n(I18nKey.uncategorized).toLowerCase()
 	)
 		return url("/archive/?uncategorized=true");
-	return url(`/archive/?category=${encodeURIComponent(category.trim())}`);
+
+	// Build URL with multiple ?category= params for multi-level paths
+	const query = pathParts
+		.map((part) => `category=${encodeURIComponent(part)}`)
+		.join("&");
+	return url(`/archive/?${query}`);
 }
 
 export function getDir(path: string): string {

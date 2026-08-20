@@ -19,7 +19,7 @@ interface Post {
 	data: {
 		title: string;
 		tags: string[];
-		category?: string | null;
+		category?: string | string[] | null;
 		published: Date;
 	};
 }
@@ -27,6 +27,26 @@ interface Post {
 interface Group {
 	year: number;
 	posts: Post[];
+}
+
+/**
+ * Normalize a post's category field to a string[] path.
+ */
+function getCategoryPath(category: string | string[] | null | undefined): string[] {
+	if (!category) return [];
+	if (Array.isArray(category)) return category.map((s) => s.trim()).filter(Boolean);
+	const trimmed = category.trim();
+	return trimmed ? [trimmed] : [];
+}
+
+/**
+ * Check if a post's category path starts with the selected filter path (prefix match).
+ * This means selecting parent "前端" also shows posts categorized as ["前端", "React"].
+ */
+function matchesCategoryFilter(postPath: string[], filterPath: string[]): boolean {
+	if (filterPath.length === 0) return true;
+	if (postPath.length < filterPath.length) return false;
+	return filterPath.every((seg, i) => postPath[i] === seg);
 }
 
 let groups: Group[] = [];
@@ -53,9 +73,10 @@ onMount(async () => {
 	}
 
 	if (categories.length > 0) {
-		filteredPosts = filteredPosts.filter(
-			(post) => post.data.category && categories.includes(post.data.category),
-		);
+		filteredPosts = filteredPosts.filter((post) => {
+			const postPath = getCategoryPath(post.data.category);
+			return matchesCategoryFilter(postPath, categories);
+		});
 	}
 
 	if (uncategorized) {

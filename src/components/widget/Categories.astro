@@ -1,13 +1,12 @@
 ---
-import ButtonLink from "@/components/common/ButtonLink.astro";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
 import { sidebarLayoutConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
-import { getCategoryList } from "@/utils/content-utils";
+import { getCategoryTree, type CategoryNode } from "@/utils/content-utils";
 import { url } from "@/utils/url-utils";
 
-const categories = await getCategoryList();
+const categoryTree = await getCategoryTree();
 
 const COLLAPSED_HEIGHT = "7.5rem";
 
@@ -18,9 +17,13 @@ const categoriesComponent = [
 	...sidebarLayoutConfig.mobileBottomComponents,
 ].find((c) => c.type === "categories");
 
+function countAllNodes(nodes: CategoryNode[]): number {
+	return nodes.reduce((sum, n) => sum + 1 + countAllNodes(n.children), 0);
+}
+const totalCategories = countAllNodes(categoryTree);
 const collapseThreshold = categoriesComponent?.responsive?.collapseThreshold;
 const isCollapsed = collapseThreshold
-	? categories.length > collapseThreshold
+	? totalCategories > collapseThreshold
 	: false;
 
 interface Props {
@@ -37,19 +40,222 @@ const archivePath = url("/archive/");
                 class={className} style={style}
 >
     <div id="categories-widget-data" class="hidden" data-archive-path={archivePath}></div>
-    {categories.map((c) =>
-        <ButtonLink
-            url={c.url}
-            badge={String(c.count)}
-            label={`View all posts in the ${c.name.trim()} category`}
-        >
-            {c.name.trim()}
-        </ButtonLink>
-    )}
+
+    {categoryTree.map((n0) => {
+        const hasChildren0 = n0.children.length > 0;
+        return (
+        <div class="category-tree-node" data-depth="0">
+            {hasChildren0 ? (
+                <div class="category-parent">
+                    <button class="category-toggle" aria-label={`Toggle ${n0.name} subcategories`} aria-expanded="false">
+                        <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9.29 6.71a1 1 0 0 0 0 1.41L13.17 12l-3.88 3.88a1 1 0 1 0 1.41 1.41l4.59-4.59a1 1 0 0 0 0-1.41L10.7 6.7a1 1 0 0 0-1.41.01z" />
+                        </svg>
+                    </button>
+                    <a href={n0.url} class="category-parent-link" data-category-path={JSON.stringify(n0.path)}>
+                        <span class="category-name">{n0.name}</span>
+                        <span class="category-count">{n0.totalCount}</span>
+                    </a>
+                </div>
+            ) : (
+                <a href={n0.url} class="category-leaf-link" data-category-path={JSON.stringify(n0.path)} aria-label={`View all posts in the ${n0.name.trim()} category`}>
+                    <span class="category-name">{n0.name.trim()}</span>
+                    <span class="category-count">{n0.totalCount}</span>
+                </a>
+            )}
+            {hasChildren0 && (
+                <div class="category-children">
+                    {n0.children.map((n1) => {
+                        const hasChildren1 = n1.children.length > 0;
+                        return (
+                        <div class="category-tree-node" data-depth="1">
+                            {hasChildren1 ? (
+                                <div class="category-parent">
+                                    <button class="category-toggle" aria-label={`Toggle ${n1.name} subcategories`} aria-expanded="false">
+                                        <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M9.29 6.71a1 1 0 0 0 0 1.41L13.17 12l-3.88 3.88a1 1 0 1 0 1.41 1.41l4.59-4.59a1 1 0 0 0 0-1.41L10.7 6.7a1 1 0 0 0-1.41.01z" />
+                                        </svg>
+                                    </button>
+                                    <a href={n1.url} class="category-parent-link" data-category-path={JSON.stringify(n1.path)}>
+                                        <span class="category-name">{n1.name}</span>
+                                        <span class="category-count">{n1.totalCount}</span>
+                                    </a>
+                                </div>
+                            ) : (
+                                <a href={n1.url} class="category-leaf-link" data-category-path={JSON.stringify(n1.path)} aria-label={`View all posts in the ${n1.name.trim()} category`}>
+                                    <span class="category-name">{n1.name.trim()}</span>
+                                    <span class="category-count">{n1.totalCount}</span>
+                                </a>
+                            )}
+                            {hasChildren1 && (
+                                <div class="category-children">
+                                    {n1.children.map((n2) => {
+                                        const hasChildren2 = n2.children.length > 0;
+                                        return (
+                                        <div class="category-tree-node" data-depth="2">
+                                            {hasChildren2 ? (
+                                                <div class="category-parent">
+                                                    <button class="category-toggle" aria-label={`Toggle ${n2.name} subcategories`} aria-expanded="false">
+                                                        <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                            <path d="M9.29 6.71a1 1 0 0 0 0 1.41L13.17 12l-3.88 3.88a1 1 0 1 0 1.41 1.41l4.59-4.59a1 1 0 0 0 0-1.41L10.7 6.7a1 1 0 0 0-1.41.01z" />
+                                                        </svg>
+                                                    </button>
+                                                    <a href={n2.url} class="category-parent-link" data-category-path={JSON.stringify(n2.path)}>
+                                                        <span class="category-name">{n2.name}</span>
+                                                        <span class="category-count">{n2.totalCount}</span>
+                                                    </a>
+                                                </div>
+                                            ) : (
+                                                <a href={n2.url} class="category-leaf-link" data-category-path={JSON.stringify(n2.path)} aria-label={`View all posts in the ${n2.name.trim()} category`}>
+                                                    <span class="category-name">{n2.name.trim()}</span>
+                                                    <span class="category-count">{n2.totalCount}</span>
+                                                </a>
+                                            )}
+                                            {hasChildren2 && (
+                                                <div class="category-children">
+                                                    {n2.children.map((n3) => (
+                                                    <div class="category-tree-node" data-depth="3">
+                                                        <a href={n3.url} class="category-leaf-link" data-category-path={JSON.stringify(n3.path)} aria-label={`View all posts in the ${n3.name.trim()} category`}>
+                                                            <span class="category-name">{n3.name.trim()}</span>
+                                                            <span class="category-count">{n3.totalCount}</span>
+                                                        </a>
+                                                    </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+        );
+    })}
 </WidgetLayout>
 
+<style>
+  .category-tree-node {
+    display: flex;
+    flex-direction: column;
+  }
+  .category-parent {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .category-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    border-radius: 0.375rem;
+    color: var(--content-meta);
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+  .category-toggle:hover {
+    background: var(--btn-regular-bg);
+    color: var(--primary);
+  }
+  :global(.toggle-icon) {
+    transition: transform 200ms ease;
+  }
+  .category-toggle[aria-expanded="true"] :global(.toggle-icon) {
+    transform: rotate(90deg);
+  }
+  .category-parent-link,
+  .category-leaf-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--btn-content);
+    text-decoration: none;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .category-leaf-link {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    padding-left: calc(1.5rem + 0.5rem);
+  }
+  .category-parent-link:hover,
+  .category-leaf-link:hover {
+    background: var(--btn-regular-bg);
+    color: var(--primary);
+  }
+  .category-parent-link[data-active],
+  .category-leaf-link[data-active] {
+    color: var(--primary);
+  }
+  .category-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .category-count {
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    opacity: 0.5;
+    font-weight: 400;
+  }
+  .category-children {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    padding-left: 1.5rem;
+    margin-top: 0.125rem;
+    margin-bottom: 0.25rem;
+  }
+  .category-children[data-open] {
+    display: flex;
+  }
+</style>
+
 <script>
-  function updateBannerTitleFromCategory() {
+  function initCategoryTree() {
+    const widget = document.getElementById("categories");
+    if (!widget) return;
+
+    widget.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const toggleBtn = target.closest(".category-toggle") as HTMLButtonElement | null;
+      if (!toggleBtn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      const node = toggleBtn.closest(".category-tree-node");
+      if (!node) return;
+
+      const children = node.querySelector<HTMLElement>(":scope > .category-children");
+      if (!children) return;
+
+      const isExpanded = toggleBtn.getAttribute("aria-expanded") === "true";
+      toggleBtn.setAttribute("aria-expanded", isExpanded ? "false" : "true");
+      if (isExpanded) {
+        children.removeAttribute("data-open");
+      } else {
+        children.setAttribute("data-open", "");
+      }
+    });
+  }
+
+  function updateBannerAndHighlight() {
     const data = document.getElementById("categories-widget-data");
     if (!data) return;
 
@@ -57,20 +263,54 @@ const archivePath = url("/archive/");
     const pathname = window.location.pathname.replace(/\/$/, "");
     const isArchive = pathname === archivePath;
 
-    if (!isArchive) return;
-
     const params = new URLSearchParams(window.location.search);
-    const activeCategory = params.get("category") || "";
+    const activeCategoryPath = params.has("category") ? params.getAll("category") : [];
 
-    if (activeCategory) {
+    if (isArchive && activeCategoryPath.length > 0) {
       const bannerTitle = document.querySelector(".banner-page-title-text");
       if (bannerTitle) {
-        bannerTitle.textContent = decodeURIComponent(activeCategory);
+        bannerTitle.textContent = activeCategoryPath.map(decodeURIComponent).join(" / ");
       }
+    }
+
+    // Highlight active category in the tree
+    const widget = document.getElementById("categories");
+    if (!widget) return;
+
+    // Clear all active states
+    widget.querySelectorAll("[data-active]").forEach((el) => el.removeAttribute("data-active"));
+
+    if (activeCategoryPath.length > 0) {
+      const activePathJson = JSON.stringify(activeCategoryPath);
+      widget.querySelectorAll("[data-category-path]").forEach((el) => {
+        if (el.getAttribute("data-category-path") === activePathJson) {
+          el.setAttribute("data-active", "");
+          // Auto-expand all ancestor .category-children containers
+          let parent = el.closest(".category-children");
+          while (parent) {
+            parent.setAttribute("data-open", "");
+            const parentNode = parent.closest(".category-tree-node");
+            if (parentNode) {
+              const toggle = parentNode.querySelector<HTMLButtonElement>(":scope > .category-parent > .category-toggle");
+              if (toggle) {
+                toggle.setAttribute("aria-expanded", "true");
+              }
+            }
+            parent = parentNode?.parentElement?.closest(".category-children") || null;
+          }
+        }
+      });
     }
   }
 
-  updateBannerTitleFromCategory();
-  document.addEventListener("astro:page-load", updateBannerTitleFromCategory);
-  document.addEventListener("swup:contentReplaced", updateBannerTitleFromCategory);
+  initCategoryTree();
+  updateBannerAndHighlight();
+  document.addEventListener("astro:page-load", () => {
+    initCategoryTree();
+    updateBannerAndHighlight();
+  });
+  document.addEventListener("swup:contentReplaced", () => {
+    initCategoryTree();
+    updateBannerAndHighlight();
+  });
 </script>

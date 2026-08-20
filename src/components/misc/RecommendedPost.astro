@@ -3,6 +3,7 @@ import { Icon } from "astro-icon/components";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { PostForList } from "@/utils/content-utils";
+import { getCategoryPath } from "@/utils/content-utils";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
 import { getPostUrlBySlug, url } from "@/utils/url-utils";
 
@@ -49,11 +50,14 @@ const relatedIds = JSON.stringify(relatedPosts.map((p) => p.id));
               {post.data.title}
             </div>
             <div class="flex items-center gap-1.5 text-xs text-black/30 dark:text-white/30 transition mt-0.5">
-              {post.data.category && (
-                <span class="shrink-0 px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40">
-                  {post.data.category}
-                </span>
-              )}
+              {(() => {
+                const catPath = getCategoryPath(post.data.category);
+                return catPath.length > 0 ? (
+                  <span class="shrink-0 px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40">
+                    {catPath.join(" / ")}
+                  </span>
+                ) : null;
+              })()}
               <span class="truncate">{post.data.description || formatDateToYYYYMMDD(post.data.published)}</span>
             </div>
           </div>
@@ -144,7 +148,7 @@ function renderRandomPosts() {
       if (post.category) {
         var cat = document.createElement('span');
         cat.className = 'shrink-0 px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40';
-        cat.textContent = post.category;
+        cat.textContent = Array.isArray(post.category) ? post.category.join(' / ') : post.category;
         meta.appendChild(cat);
       }
 
